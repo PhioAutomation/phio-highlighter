@@ -8,13 +8,14 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit; // No direct access
 
-// Enqueue scripts & styles
-function highlighter_enqueue() {
-    wp_enqueue_style(
+// Register scripts/styles once
+function iecst_register_assets() {
+    wp_register_style(
         'iecst-theme',
         plugins_url('highlighter/themes/default.css', __FILE__)
     );
-    wp_enqueue_script(
+
+    wp_register_script(
         'iecst-js',
         plugins_url('highlighter/iecst.js', __FILE__),
         array(),
@@ -22,7 +23,19 @@ function highlighter_enqueue() {
         true
     );
 }
-add_action('wp_enqueue_scripts', 'highlighter_enqueue');
+add_action('init', 'iecst_register_assets');
+
+// Enqueue for front-end
+add_action('wp_enqueue_scripts', function() {
+    wp_enqueue_style('iecst-theme');
+    wp_enqueue_script('iecst-js');
+});
+
+// Enqueue for block editor
+add_action('enqueue_block_editor_assets', function() {
+    wp_enqueue_style('iecst-theme');
+    wp_enqueue_script('iecst-js');
+});
 
 // Register Gutenberg Block
 function iecst_highlighter_register_block() {
@@ -33,6 +46,7 @@ function iecst_highlighter_register_block() {
         '1.0.0',
         true
     );
+
     register_block_type('iecst-highlighter/code-block', array(
         'editor_script' => 'iecst-highlighter-block',
     ));
