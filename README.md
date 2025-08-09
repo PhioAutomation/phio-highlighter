@@ -29,3 +29,34 @@ npm install
 npm run dev
 ```
 ![React Sample](/react/sample.png)
+
+## WordPress
+
+A plugin is located at `/wordpress/iecst-highlighter`. To test this out, a docker compose is available.
+
+```bash
+cd wordpress
+docker compose up
+```
+
+After some time, the WordPress site will be available at localhost:8000. Running the `docker compose up` will
+scaffold the database and then configure WordPress. This will result in a new (ignored) `wordpress` directory.
+
+Copy the `iecst-highlighter` folder into the `wordpress/wordpress/wp-content/plugins` directory.
+
+Activate the Plugin.
+
+In the editor, you should now see the IEC Structured Text Highlighter block.
+
+![Block](/wordpress/block.png)
+
+After the Page is saved, the runtime will display highlighted code blocks.
+
+![Highlight](/wordpress/runtime.png)
+
+The `iecst-highlighter/highlighter/themes/default.css` will define the styling of the code blocks.
+
+## Vue
+
+Sadly, I don't know enough about Vue yet to get this working but welcome any contributors!
+
