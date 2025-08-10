@@ -1,7 +1,7 @@
 === IECST Highlighter ===
 Contributors:      Andrew Parman
 Tags:              block
-Tested up to:      6.7
+Tested up to:      6.8.2
 Stable tag:        0.1.0
 License:           GPL-2.0-or-later
 License URI:       https://github.com/PhioAutomation/phio-highlighter-samples/blob/main/LICENSE
