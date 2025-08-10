@@ -1,0 +1,14 @@
+/**
+ * The following styles get applied inside the editor only.
+ */
+
+.wp-block-create-block-iecst-highlighter {
+	background-color: #364353;
+	color: #fff;
+	padding: 4px;
+}
+
+.components-textarea-control__input {
+  font-family: var(--wp--preset--font-family--fira-code, monospace) !important;
+  tab-size: 4;
+}

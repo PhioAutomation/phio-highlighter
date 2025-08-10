@@ -1,50 +1,27 @@
-=== My Syntax Highlighter ===
-Contributors: yourusername
-Donate link: https://yourwebsite.com/donate
-Tags: syntax highlighting, code, programming, highlight
-Requires at least: 5.0
-Tested up to: 6.3
-Requires PHP: 7.0
-Stable tag: 1.0.0
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+=== IECST Highlighter ===
+Contributors:      Andrew Parman
+Tags:              block
+Tested up to:      6.8
+Stable tag:        0.1.0
+License:           GPL-2.0-or-later
+License URI:       https://github.com/PhioAutomation/phio-highlighter-samples/blob/main/LICENSE
 
-// TODO Finish :)
-
-A lightweight syntax highlighter plugin that adds beautiful code highlighting to your WordPress site using the Phio Highlighter.
-
-== Description ==
-
-Highlights code blocks for the IEC 61131-3 Structured Text language
+Display beautiful code snippets using the Phio Highlighter for IEC 61131-3 Structured Text
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/my-highlighter-wp` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Add the 'Syntax Highlighted Code' block to your posts or pages.
-4. Enjoy beautiful highlighted code!
-
-== Frequently Asked Questions ==
-
-= Does it work with the Classic Editor? =
-
-Yes, use the shortcode `[my_highlighter]` with your code inside.
-
-= Can I change themes? =
-
-Currently, the plugin uses the default theme, but theme support will be added soon.
-
-== Changelog ==
-
-= 1.0.0 =
-* Initial release.
+1. Upload the plugin files to the `/wp-content/plugins/iecst-highlighter` directory, or install the plugin through the WordPress plugins screen directly.
+1. Activate the plugin through the 'Plugins' screen in WordPress
 
 == Screenshots ==
 
-1. The syntax highlighted code block in the Gutenberg editor.
-2. Frontend view of highlighted code.
+1. Select a Highlighter theme Settings -> General -> IECST Highlighter CSS Theme
+2. Add an IECST Highlighter block to a page
+3. Enter your code in the editor
+4. Light (default) theme
+5. Dark theme
 
-== Upgrade Notice ==
+== Changelog ==
 
-= 1.0.0 =
-Initial release.
+= 0.1.0 =
+* Release
