@@ -4,7 +4,11 @@
 
 .wp-block-create-block-iecst-highlighter {
 	background-color: #364353;
-	font-family: 'Monaco', monospace;
 	color: #fff;
-	padding: 10px;
+	padding: 4px;
+}
+
+.components-textarea-control__input {
+  font-family: var(--wp--preset--font-family--fira-code, monospace) !important;
+  tab-size: 4;
 }

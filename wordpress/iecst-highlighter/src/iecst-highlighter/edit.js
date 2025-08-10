@@ -23,15 +23,15 @@ export default function Edit({ attributes, setAttributes }) {
 				</PanelBody>
 			</InspectorControls>
 
-		<div {...blockProps}>
-			<TextareaControl
-				label="Code Snippet"
-				value={content}
-				onChange={(value) => setAttributes({ content: value })}
-				rows={10}
-				placeholder="Enter your code here..."
-			/>
-		</div>
+			<div {...blockProps}>
+				<TextareaControl
+					label="Code Snippet"
+					value={content}
+					onChange={(value) => setAttributes({ content: value })}
+					rows={10}
+					placeholder="Enter your code here..."
+				/>
+			</div>
 		</>
 	);
 }
