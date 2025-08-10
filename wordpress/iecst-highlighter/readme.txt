@@ -1,4 +1,4 @@
-=== Iecst Highlighter ===
+=== IECST Highlighter ===
 Contributors:      Andrew Parman
 Tags:              block
 Tested up to:      6.7

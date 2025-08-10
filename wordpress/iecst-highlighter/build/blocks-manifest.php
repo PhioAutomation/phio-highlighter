@@ -15,10 +15,6 @@ return array(
 				'type' => 'string',
 				'source' => 'text',
 				'selector' => 'code'
-			),
-			'cssStyle' => array(
-				'type' => 'string',
-				'default' => 'default.css'
 			)
 		),
 		'example' => array(

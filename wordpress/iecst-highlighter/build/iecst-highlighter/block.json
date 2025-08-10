@@ -12,10 +12,6 @@
       "type": "string",
       "source": "text",
       "selector": "code"
-    },
-    "cssStyle": {
-      "type": "string",
-      "default": "default.css"
     }
   },
   "example": {},

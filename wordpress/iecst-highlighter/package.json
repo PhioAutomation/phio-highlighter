@@ -7,7 +7,7 @@
 	"main": "build/index.js",
 	"scripts": {
 		"build": "wp-scripts build --blocks-manifest",
-		"postbuild": "cpx \"build/**/*\" \"../wordpress/wp-content/plugins/iecst-highlighter/build\" --clean",
+		"postbuild": "cpx \"build/**/*\" \"../wordpress/wp-content/plugins/iecst-highlighter/build\" --clean && cpx \"css/**/*\" \"../wordpress/wp-content/plugins/iecst-highlighter/css\" --clean",
 		"format": "wp-scripts format",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
