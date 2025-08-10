@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name:       Iecst Highlighter
- * Description:       Example block scaffolded with Create Block tool.
+ * Plugin Name:       IECST Highlighter
+ * Description:       Display beautiful code snippets using the Phio Highlighter for IEC 61131-3 Structured Text
  * Version:           0.1.0
  * Requires at least: 6.7
  * Requires PHP:      7.4
- * Author:            The WordPress Contributors
+ * Author:            Andrew Parman
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       iecst-highlighter
@@ -67,7 +67,7 @@ function iecst_highlighter_register_settings() {
 		[
 			'type' => 'string',
 			'sanitize_callback' => 'sanitize_text_field',
-			'default' => 'phio-dark.css',
+			'default' => 'phio-light.css',
 		]
 	);
 	add_settings_field(
@@ -83,12 +83,12 @@ add_action( 'admin_init', 'iecst_highlighter_register_settings' );
 
 // Render the dropdown for the available CSS files
 function iecst_highlighter_css_field_html() {
-	$css_dir = plugin_dir_path( __FILE__ ) . 'css/';
-	$css_url = plugins_url( 'css/', __FILE__ );
+	$css_dir = plugin_dir_path( __FILE__ ) . 'assets/css/';
+	$css_url = plugins_url( 'assets/css/', __FILE__ );
 	$files = array_filter( scandir( $css_dir ), function( $file ) {
-		return preg_match( '/\.css$/', $file );
+		return preg_match( '/\\.css$/', $file );
 	});
-	$current = get_option( 'iecst_highlighter_css', 'phio-dark.css' );
+	$current = get_option( 'iecst_highlighter_css', 'phio-light.css' );
 	echo '<select id="iecst_highlighter_css" name="iecst_highlighter_css">';
 	foreach ( $files as $file ) {
 		$selected = $file === $current ? 'selected' : '';
@@ -99,13 +99,13 @@ function iecst_highlighter_css_field_html() {
 
 // Enqueue the selected CSS file globally
 function iecst_highlighter_enqueue_global_css() {
-	$selected = get_option( 'iecst_highlighter_css', 'phio-dark.css' );
-	$css_url = plugins_url( 'css/' . $selected, __FILE__ );
+	$selected = get_option( 'iecst_highlighter_css', 'phio-light.css' );
+	$css_url = plugins_url( 'assets/css/' . $selected, __FILE__ );
 	wp_enqueue_style(
 		'iecst-highlighter-global-style',
 		$css_url,
 		array(),
-		filemtime( plugin_dir_path( __FILE__ ) . 'css/' . $selected )
+		filemtime( plugin_dir_path( __FILE__ ) . 'assets/css/' . $selected )
 	);
 }
 add_action( 'enqueue_block_assets', 'iecst_highlighter_enqueue_global_css' );
