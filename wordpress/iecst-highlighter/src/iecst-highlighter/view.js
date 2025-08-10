@@ -6,10 +6,3570 @@
  * in `block.json` it will be enqueued on the front end of the site.
  */
 
-/*! 
+/*!
  * IEC Structured Text Highlighter v1.0.0 (copied from dist)
  * Copyright (c) 2025 Andrew Parman
  * Released under the MIT License
- */(function(){"use strict";let Mt=0;class yt{constructor(t,e){this.from=t,this.to=e}}class k{constructor(t={}){this.id=Mt++,this.perNode=!!t.perNode,this.deserialize=t.deserialize||(()=>{throw new Error("This node type doesn't define a deserialize function")})}add(t){if(this.perNode)throw new RangeError("Can't add per-node props to node types");return typeof t!="function"&&(t=V.match(t)),e=>{let i=t(e);return i===void 0?null:[this,i]}}}k.closedBy=new k({deserialize:o=>o.split(" ")}),k.openedBy=new k({deserialize:o=>o.split(" ")}),k.group=new k({deserialize:o=>o.split(" ")}),k.isolate=new k({deserialize:o=>{if(o&&o!="rtl"&&o!="ltr"&&o!="auto")throw new RangeError("Invalid value for isolate: "+o);return o||"auto"}}),k.contextHash=new k({perNode:!0}),k.lookAhead=new k({perNode:!0}),k.mounted=new k({perNode:!0});class ot{constructor(t,e,i){this.tree=t,this.overlay=e,this.parser=i}static get(t){return t&&t.props&&t.props[k.mounted.id]}}const Ht=Object.create(null);class V{constructor(t,e,i,r=0){this.name=t,this.props=e,this.id=i,this.flags=r}static define(t){let e=t.props&&t.props.length?Object.create(null):Ht,i=(t.top?1:0)|(t.skipped?2:0)|(t.error?4:0)|(t.name==null?8:0),r=new V(t.name||"",e,t.id,i);if(t.props){for(let n of t.props)if(Array.isArray(n)||(n=n(r)),n){if(n[0].perNode)throw new RangeError("Can't store a per-node prop on a node type");e[n[0].id]=n[1]}}return r}prop(t){return this.props[t.id]}get isTop(){return(this.flags&1)>0}get isSkipped(){return(this.flags&2)>0}get isError(){return(this.flags&4)>0}get isAnonymous(){return(this.flags&8)>0}is(t){if(typeof t=="string"){if(this.name==t)return!0;let e=this.prop(k.group);return e?e.indexOf(t)>-1:!1}return this.id==t}static match(t){let e=Object.create(null);for(let i in t)for(let r of i.split(" "))e[r]=t[i];return i=>{for(let r=i.prop(k.group),n=-1;n<(r?r.length:0);n++){let s=e[n<0?i.name:r[n]];if(s)return s}}}}V.none=new V("",Object.create(null),0,8);class wt{constructor(t){this.types=t;for(let e=0;e<t.length;e++)if(t[e].id!=e)throw new RangeError("Node type ids should correspond to array positions when creating a node set")}extend(...t){let e=[];for(let i of this.types){let r=null;for(let n of t){let s=n(i);s&&(r||(r=Object.assign({},i.props)),r[s[0].id]=s[1])}e.push(r?new V(i.name,r,i.id,i.flags):i)}return new wt(e)}}const at=new WeakMap,Ct=new WeakMap;var R;(function(o){o[o.ExcludeBuffers=1]="ExcludeBuffers",o[o.IncludeAnonymous=2]="IncludeAnonymous",o[o.IgnoreMounts=4]="IgnoreMounts",o[o.IgnoreOverlays=8]="IgnoreOverlays"})(R||(R={}));class C{constructor(t,e,i,r,n){if(this.type=t,this.children=e,this.positions=i,this.length=r,this.props=null,n&&n.length){this.props=Object.create(null);for(let[s,O]of n)this.props[typeof s=="number"?s:s.id]=O}}toString(){let t=ot.get(this);if(t&&!t.overlay)return t.tree.toString();let e="";for(let i of this.children){let r=i.toString();r&&(e&&(e+=","),e+=r)}return this.type.name?(/\W/.test(this.type.name)&&!this.type.isError?JSON.stringify(this.type.name):this.type.name)+(e.length?"("+e+")":""):e}cursor(t=0){return new bt(this.topNode,t)}cursorAt(t,e=0,i=0){let r=at.get(this)||this.topNode,n=new bt(r);return n.moveTo(t,e),at.set(this,n._tree),n}get topNode(){return new X(this,0,0,null)}resolve(t,e=0){let i=st(at.get(this)||this.topNode,t,e,!1);return at.set(this,i),i}resolveInner(t,e=0){let i=st(Ct.get(this)||this.topNode,t,e,!0);return Ct.set(this,i),i}resolveStack(t,e=0){return ee(this,t,e)}iterate(t){let{enter:e,leave:i,from:r=0,to:n=this.length}=t,s=t.mode||0,O=(s&R.IncludeAnonymous)>0;for(let a=this.cursor(s|R.IncludeAnonymous);;){let l=!1;if(a.from<=n&&a.to>=r&&(!O&&a.type.isAnonymous||e(a)!==!1)){if(a.firstChild())continue;l=!0}for(;l&&i&&(O||!a.type.isAnonymous)&&i(a),!a.nextSibling();){if(!a.parent())return;l=!0}}}prop(t){return t.perNode?this.props?this.props[t.id]:void 0:this.type.prop(t)}get propValues(){let t=[];if(this.props)for(let e in this.props)t.push([+e,this.props[e]]);return t}balance(t={}){return this.children.length<=8?this:jt(V.none,this.children,this.positions,0,this.children.length,0,this.length,(e,i,r)=>new C(this.type,e,i,r,this.propValues),t.makeTree||((e,i,r)=>new C(V.none,e,i,r)))}static build(t){return ie(t)}}C.empty=new C(V.none,[],[],0);class St{constructor(t,e){this.buffer=t,this.index=e}get id(){return this.buffer[this.index-4]}get start(){return this.buffer[this.index-3]}get end(){return this.buffer[this.index-2]}get size(){return this.buffer[this.index-1]}get pos(){return this.index}next(){this.index-=4}fork(){return new St(this.buffer,this.index)}}class L{constructor(t,e,i){this.buffer=t,this.length=e,this.set=i}get type(){return V.none}toString(){let t=[];for(let e=0;e<this.buffer.length;)t.push(this.childString(e)),e=this.buffer[e+3];return t.join(",")}childString(t){let e=this.buffer[t],i=this.buffer[t+3],r=this.set.types[e],n=r.name;if(/\W/.test(n)&&!r.isError&&(n=JSON.stringify(n)),t+=4,i==t)return n;let s=[];for(;t<i;)s.push(this.childString(t)),t=this.buffer[t+3];return n+"("+s.join(",")+")"}findChild(t,e,i,r,n){let{buffer:s}=this,O=-1;for(let a=t;a!=e&&!(vt(n,r,s[a+1],s[a+2])&&(O=a,i>0));a=s[a+3]);return O}slice(t,e,i){let r=this.buffer,n=new Uint16Array(e-t),s=0;for(let O=t,a=0;O<e;){n[a++]=r[O++],n[a++]=r[O++]-i;let l=n[a++]=r[O++]-i;n[a++]=r[O++]-t,s=Math.max(s,l)}return new L(n,s,this.set)}}function vt(o,t,e,i){switch(o){case-2:return e<t;case-1:return i>=t&&e<t;case 0:return e<t&&i>t;case 1:return e<=t&&i>t;case 2:return i>t;case 4:return!0}}function st(o,t,e,i){for(var r;o.from==o.to||(e<1?o.from>=t:o.from>t)||(e>-1?o.to<=t:o.to<t);){let s=!i&&o instanceof X&&o.index<0?null:o.parent;if(!s)return o;o=s}let n=i?0:R.IgnoreOverlays;if(i)for(let s=o,O=s.parent;O;s=O,O=s.parent)s instanceof X&&s.index<0&&((r=O.enter(t,e,n))===null||r===void 0?void 0:r.from)!=s.from&&(o=O);for(;;){let s=o.enter(t,e,n);if(!s)return o;o=s}}class Et{cursor(t=0){return new bt(this,t)}getChild(t,e=null,i=null){let r=Xt(this,t,e,i);return r.length?r[0]:null}getChildren(t,e=null,i=null){return Xt(this,t,e,i)}resolve(t,e=0){return st(this,t,e,!1)}resolveInner(t,e=0){return st(this,t,e,!0)}matchContext(t){return xt(this.parent,t)}enterUnfinishedNodesBefore(t){let e=this.childBefore(t),i=this;for(;e;){let r=e.lastChild;if(!r||r.to!=e.to)break;r.type.isError&&r.from==r.to?(i=e,e=r.prevSibling):e=r}return i}get node(){return this}get next(){return this.parent}}class X extends Et{constructor(t,e,i,r){super(),this._tree=t,this.from=e,this.index=i,this._parent=r}get type(){return this._tree.type}get name(){return this._tree.type.name}get to(){return this.from+this._tree.length}nextChild(t,e,i,r,n=0){for(let s=this;;){for(let{children:O,positions:a}=s._tree,l=e>0?O.length:-1;t!=l;t+=e){let c=O[t],f=a[t]+s.from;if(vt(r,i,f,f+c.length)){if(c instanceof L){if(n&R.ExcludeBuffers)continue;let d=c.findChild(0,c.buffer.length,e,i-f,r);if(d>-1)return new B(new Jt(s,c,t,f),null,d)}else if(n&R.IncludeAnonymous||!c.type.isAnonymous||Tt(c)){let d;if(!(n&R.IgnoreMounts)&&(d=ot.get(c))&&!d.overlay)return new X(d.tree,f,t,s);let p=new X(c,f,t,s);return n&R.IncludeAnonymous||!p.type.isAnonymous?p:p.nextChild(e<0?c.children.length-1:0,e,i,r)}}}if(n&R.IncludeAnonymous||!s.type.isAnonymous||(s.index>=0?t=s.index+e:t=e<0?-1:s._parent._tree.children.length,s=s._parent,!s))return null}}get firstChild(){return this.nextChild(0,1,0,4)}get lastChild(){return this.nextChild(this._tree.children.length-1,-1,0,4)}childAfter(t){return this.nextChild(0,1,t,2)}childBefore(t){return this.nextChild(this._tree.children.length-1,-1,t,-2)}enter(t,e,i=0){let r;if(!(i&R.IgnoreOverlays)&&(r=ot.get(this._tree))&&r.overlay){let n=t-this.from;for(let{from:s,to:O}of r.overlay)if((e>0?s<=n:s<n)&&(e<0?O>=n:O>n))return new X(r.tree,r.overlay[0].from+this.from,-1,this)}return this.nextChild(0,1,t,e,i)}nextSignificantParent(){let t=this;for(;t.type.isAnonymous&&t._parent;)t=t._parent;return t}get parent(){return this._parent?this._parent.nextSignificantParent():null}get nextSibling(){return this._parent&&this.index>=0?this._parent.nextChild(this.index+1,1,0,4):null}get prevSibling(){return this._parent&&this.index>=0?this._parent.nextChild(this.index-1,-1,0,4):null}get tree(){return this._tree}toTree(){return this._tree}toString(){return this._tree.toString()}}function Xt(o,t,e,i){let r=o.cursor(),n=[];if(!r.firstChild())return n;if(e!=null){for(let s=!1;!s;)if(s=r.type.is(e),!r.nextSibling())return n}for(;;){if(i!=null&&r.type.is(i))return n;if(r.type.is(t)&&n.push(r.node),!r.nextSibling())return i==null?n:[]}}function xt(o,t,e=t.length-1){for(let i=o;e>=0;i=i.parent){if(!i)return!1;if(!i.type.isAnonymous){if(t[e]&&t[e]!=i.name)return!1;e--}}return!0}class Jt{constructor(t,e,i,r){this.parent=t,this.buffer=e,this.index=i,this.start=r}}class B extends Et{get name(){return this.type.name}get from(){return this.context.start+this.context.buffer.buffer[this.index+1]}get to(){return this.context.start+this.context.buffer.buffer[this.index+2]}constructor(t,e,i){super(),this.context=t,this._parent=e,this.index=i,this.type=t.buffer.set.types[t.buffer.buffer[i]]}child(t,e,i){let{buffer:r}=this.context,n=r.findChild(this.index+4,r.buffer[this.index+3],t,e-this.context.start,i);return n<0?null:new B(this.context,this,n)}get firstChild(){return this.child(1,0,4)}get lastChild(){return this.child(-1,0,4)}childAfter(t){return this.child(1,t,2)}childBefore(t){return this.child(-1,t,-2)}enter(t,e,i=0){if(i&R.ExcludeBuffers)return null;let{buffer:r}=this.context,n=r.findChild(this.index+4,r.buffer[this.index+3],e>0?1:-1,t-this.context.start,e);return n<0?null:new B(this.context,this,n)}get parent(){return this._parent||this.context.parent.nextSignificantParent()}externalSibling(t){return this._parent?null:this.context.parent.nextChild(this.context.index+t,t,0,4)}get nextSibling(){let{buffer:t}=this.context,e=t.buffer[this.index+3];return e<(this._parent?t.buffer[this._parent.index+3]:t.buffer.length)?new B(this.context,this._parent,e):this.externalSibling(1)}get prevSibling(){let{buffer:t}=this.context,e=this._parent?this._parent.index+4:0;return this.index==e?this.externalSibling(-1):new B(this.context,this._parent,t.findChild(e,this.index,-1,0,4))}get tree(){return null}toTree(){let t=[],e=[],{buffer:i}=this.context,r=this.index+4,n=i.buffer[this.index+3];if(n>r){let s=i.buffer[this.index+1];t.push(i.slice(r,n,s)),e.push(0)}return new C(this.type,t,e,this.to-this.from)}toString(){return this.context.buffer.childString(this.index)}}function _t(o){if(!o.length)return null;let t=0,e=o[0];for(let n=1;n<o.length;n++){let s=o[n];(s.from>e.from||s.to<e.to)&&(e=s,t=n)}let i=e instanceof X&&e.index<0?null:e.parent,r=o.slice();return i?r[t]=i:r.splice(t,1),new te(r,e)}class te{constructor(t,e){this.heads=t,this.node=e}get next(){return _t(this.heads)}}function ee(o,t,e){let i=o.resolveInner(t,e),r=null;for(let n=i instanceof X?i:i.context.parent;n;n=n.parent)if(n.index<0){let s=n.parent;(r||(r=[i])).push(s.resolve(t,e)),n=s}else{let s=ot.get(n.tree);if(s&&s.overlay&&s.overlay[0].from<=t&&s.overlay[s.overlay.length-1].to>=t){let O=new X(s.tree,s.overlay[0].from+n.from,-1,n);(r||(r=[i])).push(st(O,t,e,!1))}}return r?_t(r):i}class bt{get name(){return this.type.name}constructor(t,e=0){if(this.mode=e,this.buffer=null,this.stack=[],this.index=0,this.bufferNode=null,t instanceof X)this.yieldNode(t);else{this._tree=t.context.parent,this.buffer=t.context;for(let i=t._parent;i;i=i._parent)this.stack.unshift(i.index);this.bufferNode=t,this.yieldBuf(t.index)}}yieldNode(t){return t?(this._tree=t,this.type=t.type,this.from=t.from,this.to=t.to,!0):!1}yieldBuf(t,e){this.index=t;let{start:i,buffer:r}=this.buffer;return this.type=e||r.set.types[r.buffer[t]],this.from=i+r.buffer[t+1],this.to=i+r.buffer[t+2],!0}yield(t){return t?t instanceof X?(this.buffer=null,this.yieldNode(t)):(this.buffer=t.context,this.yieldBuf(t.index,t.type)):!1}toString(){return this.buffer?this.buffer.buffer.childString(this.index):this._tree.toString()}enterChild(t,e,i){if(!this.buffer)return this.yield(this._tree.nextChild(t<0?this._tree._tree.children.length-1:0,t,e,i,this.mode));let{buffer:r}=this.buffer,n=r.findChild(this.index+4,r.buffer[this.index+3],t,e-this.buffer.start,i);return n<0?!1:(this.stack.push(this.index),this.yieldBuf(n))}firstChild(){return this.enterChild(1,0,4)}lastChild(){return this.enterChild(-1,0,4)}childAfter(t){return this.enterChild(1,t,2)}childBefore(t){return this.enterChild(-1,t,-2)}enter(t,e,i=this.mode){return this.buffer?i&R.ExcludeBuffers?!1:this.enterChild(1,t,e):this.yield(this._tree.enter(t,e,i))}parent(){if(!this.buffer)return this.yieldNode(this.mode&R.IncludeAnonymous?this._tree._parent:this._tree.parent);if(this.stack.length)return this.yieldBuf(this.stack.pop());let t=this.mode&R.IncludeAnonymous?this.buffer.parent:this.buffer.parent.nextSignificantParent();return this.buffer=null,this.yieldNode(t)}sibling(t){if(!this.buffer)return this._tree._parent?this.yield(this._tree.index<0?null:this._tree._parent.nextChild(this._tree.index+t,t,0,4,this.mode)):!1;let{buffer:e}=this.buffer,i=this.stack.length-1;if(t<0){let r=i<0?0:this.stack[i]+4;if(this.index!=r)return this.yieldBuf(e.findChild(r,this.index,-1,0,4))}else{let r=e.buffer[this.index+3];if(r<(i<0?e.buffer.length:e.buffer[this.stack[i]+3]))return this.yieldBuf(r)}return i<0?this.yield(this.buffer.parent.nextChild(this.buffer.index+t,t,0,4,this.mode)):!1}nextSibling(){return this.sibling(1)}prevSibling(){return this.sibling(-1)}atLastNode(t){let e,i,{buffer:r}=this;if(r){if(t>0){if(this.index<r.buffer.buffer.length)return!1}else for(let n=0;n<this.index;n++)if(r.buffer.buffer[n+3]<this.index)return!1;({index:e,parent:i}=r)}else({index:e,_parent:i}=this._tree);for(;i;{index:e,_parent:i}=i)if(e>-1)for(let n=e+t,s=t<0?-1:i._tree.children.length;n!=s;n+=t){let O=i._tree.children[n];if(this.mode&R.IncludeAnonymous||O instanceof L||!O.type.isAnonymous||Tt(O))return!1}return!0}move(t,e){if(e&&this.enterChild(t,0,4))return!0;for(;;){if(this.sibling(t))return!0;if(this.atLastNode(t)||!this.parent())return!1}}next(t=!0){return this.move(1,t)}prev(t=!0){return this.move(-1,t)}moveTo(t,e=0){for(;(this.from==this.to||(e<1?this.from>=t:this.from>t)||(e>-1?this.to<=t:this.to<t))&&this.parent(););for(;this.enterChild(1,t,e););return this}get node(){if(!this.buffer)return this._tree;let t=this.bufferNode,e=null,i=0;if(t&&t.context==this.buffer)t:for(let r=this.index,n=this.stack.length;n>=0;){for(let s=t;s;s=s._parent)if(s.index==r){if(r==this.index)return s;e=s,i=n+1;break t}r=this.stack[--n]}for(let r=i;r<this.stack.length;r++)e=new B(this.buffer,e,this.stack[r]);return this.bufferNode=new B(this.buffer,e,this.index)}get tree(){return this.buffer?null:this._tree._tree}iterate(t,e){for(let i=0;;){let r=!1;if(this.type.isAnonymous||t(this)!==!1){if(this.firstChild()){i++;continue}this.type.isAnonymous||(r=!0)}for(;;){if(r&&e&&e(this),r=this.type.isAnonymous,!i)return;if(this.nextSibling())break;this.parent(),i--,r=!0}}}matchContext(t){if(!this.buffer)return xt(this.node.parent,t);let{buffer:e}=this.buffer,{types:i}=e.set;for(let r=t.length-1,n=this.stack.length-1;r>=0;n--){if(n<0)return xt(this._tree,t,r);let s=i[e.buffer[this.stack[n]]];if(!s.isAnonymous){if(t[r]&&t[r]!=s.name)return!1;r--}}return!0}}function Tt(o){return o.children.some(t=>t instanceof L||!t.type.isAnonymous||Tt(t))}function ie(o){var t;let{buffer:e,nodeSet:i,maxBufferLength:r=1024,reused:n=[],minRepeatType:s=i.types.length}=o,O=Array.isArray(e)?new St(e,e.length):e,a=i.types,l=0,c=0;function f(m,S,g,b,y,T){let{id:P,start:Q,end:w,size:x}=O,N=c,H=l;for(;x<0;)if(O.next(),x==-1){let Z=n[P];g.push(Z),b.push(Q-m);return}else if(x==-3){l=P;return}else if(x==-4){c=P;return}else throw new RangeError(`Unrecognized record size: ${x}`);let Ot=a[P],mt,tt,Bt=Q-m;if(w-Q<=r&&(tt=W(O.pos-S,y))){let Z=new Uint16Array(tt.size-tt.skip),D=O.pos-tt.size,I=Z.length;for(;O.pos>D;)I=q(tt.start,Z,I);mt=new L(Z,w-tt.start,i),Bt=tt.start-m}else{let Z=O.pos-x;O.next();let D=[],I=[],et=P>=s?P:-1,rt=0,kt=w;for(;O.pos>Z;)et>=0&&O.id==et&&O.size>=0?(O.end<=kt-r&&($(D,I,Q,rt,O.end,kt,et,N,H),rt=D.length,kt=O.end),O.next()):T>2500?d(Q,Z,D,I):f(Q,Z,D,I,et,T+1);if(et>=0&&rt>0&&rt<D.length&&$(D,I,Q,rt,Q,kt,et,N,H),D.reverse(),I.reverse(),et>-1&&rt>0){let Ft=p(Ot,H);mt=jt(Ot,D,I,0,D.length,0,w-Q,Ft,Ft)}else mt=A(Ot,D,I,w-Q,N-w,H)}g.push(mt),b.push(Bt)}function d(m,S,g,b){let y=[],T=0,P=-1;for(;O.pos>S;){let{id:Q,start:w,end:x,size:N}=O;if(N>4)O.next();else{if(P>-1&&w<P)break;P<0&&(P=x-r),y.push(Q,w,x),T++,O.next()}}if(T){let Q=new Uint16Array(T*4),w=y[y.length-2];for(let x=y.length-3,N=0;x>=0;x-=3)Q[N++]=y[x],Q[N++]=y[x+1]-w,Q[N++]=y[x+2]-w,Q[N++]=N;g.push(new L(Q,y[2]-w,i)),b.push(w-m)}}function p(m,S){return(g,b,y)=>{let T=0,P=g.length-1,Q,w;if(P>=0&&(Q=g[P])instanceof C){if(!P&&Q.type==m&&Q.length==y)return Q;(w=Q.prop(k.lookAhead))&&(T=b[P]+Q.length+w)}return A(m,g,b,y,T,S)}}function $(m,S,g,b,y,T,P,Q,w){let x=[],N=[];for(;m.length>b;)x.push(m.pop()),N.push(S.pop()+g-y);m.push(A(i.types[P],x,N,T-y,Q-T,w)),S.push(y-g)}function A(m,S,g,b,y,T,P){if(T){let Q=[k.contextHash,T];P=P?[Q].concat(P):[Q]}if(y>25){let Q=[k.lookAhead,y];P=P?[Q].concat(P):[Q]}return new C(m,S,g,b,P)}function W(m,S){let g=O.fork(),b=0,y=0,T=0,P=g.end-r,Q={size:0,start:0,skip:0};t:for(let w=g.pos-m;g.pos>w;){let x=g.size;if(g.id==S&&x>=0){Q.size=b,Q.start=y,Q.skip=T,T+=4,b+=4,g.next();continue}let N=g.pos-x;if(x<0||N<w||g.start<P)break;let H=g.id>=s?4:0,Ot=g.start;for(g.next();g.pos>N;){if(g.size<0)if(g.size==-3)H+=4;else break t;else g.id>=s&&(H+=4);g.next()}y=Ot,b+=x,T+=H}return(S<0||b==m)&&(Q.size=b,Q.start=y,Q.skip=T),Q.size>4?Q:void 0}function q(m,S,g){let{id:b,start:y,end:T,size:P}=O;if(O.next(),P>=0&&b<s){let Q=g;if(P>4){let w=O.pos-(P-4);for(;O.pos>w;)g=q(m,S,g)}S[--g]=Q,S[--g]=T-m,S[--g]=y-m,S[--g]=b}else P==-3?l=b:P==-4&&(c=b);return g}let E=[],j=[];for(;O.pos>0;)f(o.start||0,o.bufferStart||0,E,j,-1,0);let U=(t=o.length)!==null&&t!==void 0?t:E.length?j[0]+E[0].length:0;return new C(a[o.topID],E.reverse(),j.reverse(),U)}const Wt=new WeakMap;function lt(o,t){if(!o.isAnonymous||t instanceof L||t.type!=o)return 1;let e=Wt.get(t);if(e==null){e=1;for(let i of t.children){if(i.type!=o||!(i instanceof C)){e=1;break}e+=lt(o,i)}Wt.set(t,e)}return e}function jt(o,t,e,i,r,n,s,O,a){let l=0;for(let $=i;$<r;$++)l+=lt(o,t[$]);let c=Math.ceil(l*1.5/8),f=[],d=[];function p($,A,W,q,E){for(let j=W;j<q;){let U=j,m=A[j],S=lt(o,$[j]);for(j++;j<q;j++){let g=lt(o,$[j]);if(S+g>=c)break;S+=g}if(j==U+1){if(S>c){let g=$[U];p(g.children,g.positions,0,g.children.length,A[U]+E);continue}f.push($[U])}else{let g=A[j-1]+$[j-1].length-m;f.push(jt(o,$,A,U,j,m,g,null,a))}d.push(m+E-n)}}return p(t,e,i,r,0),(O||a)(f,d,s)}class re{startParse(t,e,i){return typeof t=="string"&&(t=new se(t)),i=i?i.length?i.map(r=>new yt(r.from,r.to)):[new yt(0,0)]:[new yt(0,t.length)],this.createParse(t,e||[],i)}parse(t,e,i){let r=this.startParse(t,e,i);for(;;){let n=r.advance();if(n)return n}}}class se{constructor(t){this.string=t}get length(){return this.string.length}chunk(t){return this.string.slice(t)}get lineChunks(){return!1}read(t,e){return this.string.slice(t,e)}}new k({perNode:!0});let ne=0;class _{constructor(t,e,i,r){this.name=t,this.set=e,this.base=i,this.modified=r,this.id=ne++}toString(){let{name:t}=this;for(let e of this.modified)e.name&&(t=`${e.name}(${t})`);return t}static define(t,e){let i=typeof t=="string"?t:"?";if(t instanceof _&&(e=t),e!=null&&e.base)throw new Error("Can not derive from a modified tag");let r=new _(i,[],null,[]);if(r.set.push(r),e)for(let n of e.set)r.set.push(n);return r}static defineModifier(t){let e=new ht(t);return i=>i.modified.indexOf(e)>-1?i:ht.get(i.base||i,i.modified.concat(e).sort((r,n)=>r.id-n.id))}}let Oe=0;class ht{constructor(t){this.name=t,this.instances=[],this.id=Oe++}static get(t,e){if(!e.length)return t;let i=e[0].instances.find(O=>O.base==t&&oe(e,O.modified));if(i)return i;let r=[],n=new _(t.name,r,t,e);for(let O of e)O.instances.push(n);let s=ae(e);for(let O of t.set)if(!O.modified.length)for(let a of s)r.push(ht.get(O,a));return n}}function oe(o,t){return o.length==t.length&&o.every((e,i)=>e==t[i])}function ae(o){let t=[[]];for(let e=0;e<o.length;e++)for(let i=0,r=t.length;i<r;i++)t.push(t[i].concat(o[e]));return t.sort((e,i)=>i.length-e.length)}function le(o){let t=Object.create(null);for(let e in o){let i=o[e];Array.isArray(i)||(i=[i]);for(let r of e.split(" "))if(r){let n=[],s=2,O=r;for(let f=0;;){if(O=="..."&&f>0&&f+3==r.length){s=1;break}let d=/^"(?:[^"\\]|\\.)*?"|[^\/!]+/.exec(O);if(!d)throw new RangeError("Invalid path: "+r);if(n.push(d[0]=="*"?"":d[0][0]=='"'?JSON.parse(d[0]):d[0]),f+=d[0].length,f==r.length)break;let p=r[f++];if(f==r.length&&p=="!"){s=0;break}if(p!="/")throw new RangeError("Invalid path: "+r);O=r.slice(f)}let a=n.length-1,l=n[a];if(!l)throw new RangeError("Invalid path: "+r);let c=new ft(i,s,a>0?n.slice(0,a):null);t[l]=c.sort(t[l])}}return Dt.add(t)}const Dt=new k;class ft{constructor(t,e,i,r){this.tags=t,this.mode=e,this.context=i,this.next=r}get opaque(){return this.mode==0}get inherit(){return this.mode==1}sort(t){return!t||t.depth<this.depth?(this.next=t,this):(t.next=this.sort(t.next),t)}get depth(){return this.context?this.context.length:0}}ft.empty=new ft([],2,null);function Vt(o,t){let e=Object.create(null);for(let n of o)if(!Array.isArray(n.tag))e[n.tag.id]=n.class;else for(let s of n.tag)e[s.id]=n.class;let{scope:i,all:r=null}={};return{style:n=>{let s=r;for(let O of n)for(let a of O.set){let l=e[a.id];if(l){s=s?s+" "+l:l;break}}return s},scope:i}}function he(o,t){let e=null;for(let i of o){let r=i.style(t);r&&(e=e?e+" "+r:r)}return e}function fe(o,t,e,i=0,r=o.length){let n=new ce(i,Array.isArray(t)?t:[t],e);n.highlightRange(o.cursor(),i,r,"",n.highlighters),n.flush(r)}function ue(o,t,e,i,r,n=0,s=o.length){let O=n;function a(l,c){if(!(l<=O)){for(let f=o.slice(O,l),d=0;;){let p=f.indexOf(`
-`,d),$=p<0?f.length:p;if($>d&&i(f.slice(d,$),c),p<0)break;r(),d=p+1}O=l}}fe(t,e,(l,c,f)=>{a(l,""),a(c,f)},n,s),a(s,"")}class ce{constructor(t,e,i){this.at=t,this.highlighters=e,this.span=i,this.class=""}startSpan(t,e){e!=this.class&&(this.flush(t),t>this.at&&(this.at=t),this.class=e)}flush(t){t>this.at&&this.class&&this.span(this.at,t,this.class)}highlightRange(t,e,i,r,n){let{type:s,from:O,to:a}=t;if(O>=i||a<=e)return;s.isTop&&(n=this.highlighters.filter(p=>!p.scope||p.scope(s)));let l=r,c=de(t)||ft.empty,f=he(n,c.tags);if(f&&(l&&(l+=" "),l+=f,c.mode==1&&(r+=(r?" ":"")+f)),this.startSpan(Math.max(e,O),l),c.opaque)return;let d=t.tree&&t.tree.prop(k.mounted);if(d&&d.overlay){let p=t.node.enter(d.overlay[0].from+O,1),$=this.highlighters.filter(W=>!W.scope||W.scope(d.tree.type)),A=t.firstChild();for(let W=0,q=O;;W++){let E=W<d.overlay.length?d.overlay[W]:null,j=E?E.from+O:a,U=Math.max(e,q),m=Math.min(i,j);if(U<m&&A)for(;t.from<m&&(this.highlightRange(t,U,m,r,n),this.startSpan(Math.min(m,t.to),l),!(t.to>=j||!t.nextSibling())););if(!E||j>i)break;q=E.to+O,q>e&&(this.highlightRange(p.cursor(),Math.max(e,E.from+O),Math.min(i,q),"",$),this.startSpan(Math.min(i,q),l))}A&&t.parent()}else if(t.firstChild()){d&&(r="");do if(!(t.to<=e)){if(t.from>=i)break;this.highlightRange(t,e,i,r,n),this.startSpan(Math.min(i,t.to),l)}while(t.nextSibling());t.parent()}}}function de(o){let t=o.type.prop(Dt);for(;t&&t.context&&!o.matchContext(t.context);)t=t.next;return t||null}const u=_.define,ut=u(),F=u(),qt=u(F),zt=u(F),M=u(),ct=u(M),Rt=u(M),z=u(),J=u(z),K=u(),G=u(),Nt=u(),nt=u(Nt),dt=u(),h={comment:ut,lineComment:u(ut),blockComment:u(ut),docComment:u(ut),name:F,variableName:u(F),typeName:qt,tagName:u(qt),propertyName:zt,attributeName:u(zt),className:u(F),labelName:u(F),namespace:u(F),macroName:u(F),literal:M,string:ct,docString:u(ct),character:u(ct),attributeValue:u(ct),number:Rt,integer:u(Rt),float:u(Rt),bool:u(M),regexp:u(M),escape:u(M),color:u(M),url:u(M),keyword:K,self:u(K),null:u(K),atom:u(K),unit:u(K),modifier:u(K),operatorKeyword:u(K),controlKeyword:u(K),definitionKeyword:u(K),moduleKeyword:u(K),operator:G,derefOperator:u(G),arithmeticOperator:u(G),logicOperator:u(G),bitwiseOperator:u(G),compareOperator:u(G),updateOperator:u(G),definitionOperator:u(G),typeOperator:u(G),controlOperator:u(G),punctuation:Nt,separator:u(Nt),bracket:nt,angleBracket:u(nt),squareBracket:u(nt),paren:u(nt),brace:u(nt),content:z,heading:J,heading1:u(J),heading2:u(J),heading3:u(J),heading4:u(J),heading5:u(J),heading6:u(J),contentSeparator:u(z),list:u(z),quote:u(z),emphasis:u(z),strong:u(z),link:u(z),monospace:u(z),strikethrough:u(z),inserted:u(),deleted:u(),changed:u(),invalid:u(),meta:dt,documentMeta:u(dt),annotation:u(dt),processingInstruction:u(dt),definition:_.defineModifier("definition"),constant:_.defineModifier("constant"),function:_.defineModifier("function"),standard:_.defineModifier("standard"),local:_.defineModifier("local"),special:_.defineModifier("special")};for(let o in h){let t=h[o];t instanceof _&&(t.name=o)}Vt([{tag:h.link,class:"tok-link"},{tag:h.heading,class:"tok-heading"},{tag:h.emphasis,class:"tok-emphasis"},{tag:h.strong,class:"tok-strong"},{tag:h.keyword,class:"tok-keyword"},{tag:h.atom,class:"tok-atom"},{tag:h.bool,class:"tok-bool"},{tag:h.url,class:"tok-url"},{tag:h.labelName,class:"tok-labelName"},{tag:h.inserted,class:"tok-inserted"},{tag:h.deleted,class:"tok-deleted"},{tag:h.literal,class:"tok-literal"},{tag:h.string,class:"tok-string"},{tag:h.number,class:"tok-number"},{tag:[h.regexp,h.escape,h.special(h.string)],class:"tok-string2"},{tag:h.variableName,class:"tok-variableName"},{tag:h.local(h.variableName),class:"tok-variableName tok-local"},{tag:h.definition(h.variableName),class:"tok-variableName tok-definition"},{tag:h.special(h.variableName),class:"tok-variableName2"},{tag:h.definition(h.propertyName),class:"tok-propertyName tok-definition"},{tag:h.typeName,class:"tok-typeName"},{tag:h.namespace,class:"tok-namespace"},{tag:h.className,class:"tok-className"},{tag:h.macroName,class:"tok-macroName"},{tag:h.propertyName,class:"tok-propertyName"},{tag:h.operator,class:"tok-operator"},{tag:h.comment,class:"tok-comment"},{tag:h.meta,class:"tok-meta"},{tag:h.invalid,class:"tok-invalid"},{tag:h.punctuation,class:"tok-punctuation"}]);class pt{constructor(t,e,i,r,n,s,O,a,l,c=0,f){this.p=t,this.stack=e,this.state=i,this.reducePos=r,this.pos=n,this.score=s,this.buffer=O,this.bufferBase=a,this.curContext=l,this.lookAhead=c,this.parent=f}toString(){return`[${this.stack.filter((t,e)=>e%3==0).concat(this.state)}]@${this.pos}${this.score?"!"+this.score:""}`}static start(t,e,i=0){let r=t.parser.context;return new pt(t,[],e,i,i,0,[],0,r?new Kt(r,r.start):null,0,null)}get context(){return this.curContext?this.curContext.context:null}pushState(t,e){this.stack.push(this.state,e,this.bufferBase+this.buffer.length),this.state=t}reduce(t){var e;let i=t>>19,r=t&65535,{parser:n}=this.p,s=this.reducePos<this.pos-25;s&&this.setLookAhead(this.pos);let O=n.dynamicPrecedence(r);if(O&&(this.score+=O),i==0){this.pushState(n.getGoto(this.state,r,!0),this.reducePos),r<n.minRepeatTerm&&this.storeNode(r,this.reducePos,this.reducePos,s?8:4,!0),this.reduceContext(r,this.reducePos);return}let a=this.stack.length-(i-1)*3-(t&262144?6:0),l=a?this.stack[a-2]:this.p.ranges[0].from,c=this.reducePos-l;c>=2e3&&!(!((e=this.p.parser.nodeSet.types[r])===null||e===void 0)&&e.isAnonymous)&&(l==this.p.lastBigReductionStart?(this.p.bigReductionCount++,this.p.lastBigReductionSize=c):this.p.lastBigReductionSize<c&&(this.p.bigReductionCount=1,this.p.lastBigReductionStart=l,this.p.lastBigReductionSize=c));let f=a?this.stack[a-1]:0,d=this.bufferBase+this.buffer.length-f;if(r<n.minRepeatTerm||t&131072){let p=n.stateFlag(this.state,1)?this.pos:this.reducePos;this.storeNode(r,l,p,d+4,!0)}if(t&262144)this.state=this.stack[a];else{let p=this.stack[a-3];this.state=n.getGoto(p,r,!0)}for(;this.stack.length>a;)this.stack.pop();this.reduceContext(r,l)}storeNode(t,e,i,r=4,n=!1){if(t==0&&(!this.stack.length||this.stack[this.stack.length-1]<this.buffer.length+this.bufferBase)){let s=this,O=this.buffer.length;if(O==0&&s.parent&&(O=s.bufferBase-s.parent.bufferBase,s=s.parent),O>0&&s.buffer[O-4]==0&&s.buffer[O-1]>-1){if(e==i)return;if(s.buffer[O-2]>=e){s.buffer[O-2]=i;return}}}if(!n||this.pos==i)this.buffer.push(t,e,i,r);else{let s=this.buffer.length;if(s>0&&this.buffer[s-4]!=0){let O=!1;for(let a=s;a>0&&this.buffer[a-2]>i;a-=4)if(this.buffer[a-1]>=0){O=!0;break}if(O)for(;s>0&&this.buffer[s-2]>i;)this.buffer[s]=this.buffer[s-4],this.buffer[s+1]=this.buffer[s-3],this.buffer[s+2]=this.buffer[s-2],this.buffer[s+3]=this.buffer[s-1],s-=4,r>4&&(r-=4)}this.buffer[s]=t,this.buffer[s+1]=e,this.buffer[s+2]=i,this.buffer[s+3]=r}}shift(t,e,i,r){if(t&131072)this.pushState(t&65535,this.pos);else if((t&262144)==0){let n=t,{parser:s}=this.p;(r>this.pos||e<=s.maxNode)&&(this.pos=r,s.stateFlag(n,1)||(this.reducePos=r)),this.pushState(n,i),this.shiftContext(e,i),e<=s.maxNode&&this.buffer.push(e,i,r,4)}else this.pos=r,this.shiftContext(e,i),e<=this.p.parser.maxNode&&this.buffer.push(e,i,r,4)}apply(t,e,i,r){t&65536?this.reduce(t):this.shift(t,e,i,r)}useNode(t,e){let i=this.p.reused.length-1;(i<0||this.p.reused[i]!=t)&&(this.p.reused.push(t),i++);let r=this.pos;this.reducePos=this.pos=r+t.length,this.pushState(e,r),this.buffer.push(i,r,this.reducePos,-1),this.curContext&&this.updateContext(this.curContext.tracker.reuse(this.curContext.context,t,this,this.p.stream.reset(this.pos-t.length)))}split(){let t=this,e=t.buffer.length;for(;e>0&&t.buffer[e-2]>t.reducePos;)e-=4;let i=t.buffer.slice(e),r=t.bufferBase+e;for(;t&&r==t.bufferBase;)t=t.parent;return new pt(this.p,this.stack.slice(),this.state,this.reducePos,this.pos,this.score,i,r,this.curContext,this.lookAhead,t)}recoverByDelete(t,e){let i=t<=this.p.parser.maxNode;i&&this.storeNode(t,this.pos,e,4),this.storeNode(0,this.pos,e,i?8:4),this.pos=this.reducePos=e,this.score-=190}canShift(t){for(let e=new pe(this);;){let i=this.p.parser.stateSlot(e.state,4)||this.p.parser.hasAction(e.state,t);if(i==0)return!1;if((i&65536)==0)return!0;e.reduce(i)}}recoverByInsert(t){if(this.stack.length>=300)return[];let e=this.p.parser.nextStates(this.state);if(e.length>8||this.stack.length>=120){let r=[];for(let n=0,s;n<e.length;n+=2)(s=e[n+1])!=this.state&&this.p.parser.hasAction(s,t)&&r.push(e[n],s);if(this.stack.length<120)for(let n=0;r.length<8&&n<e.length;n+=2){let s=e[n+1];r.some((O,a)=>a&1&&O==s)||r.push(e[n],s)}e=r}let i=[];for(let r=0;r<e.length&&i.length<4;r+=2){let n=e[r+1];if(n==this.state)continue;let s=this.split();s.pushState(n,this.pos),s.storeNode(0,s.pos,s.pos,4,!0),s.shiftContext(e[r],this.pos),s.reducePos=this.pos,s.score-=200,i.push(s)}return i}forceReduce(){let{parser:t}=this.p,e=t.stateSlot(this.state,5);if((e&65536)==0)return!1;if(!t.validAction(this.state,e)){let i=e>>19,r=e&65535,n=this.stack.length-i*3;if(n<0||t.getGoto(this.stack[n],r,!1)<0){let s=this.findForcedReduction();if(s==null)return!1;e=s}this.storeNode(0,this.pos,this.pos,4,!0),this.score-=100}return this.reducePos=this.pos,this.reduce(e),!0}findForcedReduction(){let{parser:t}=this.p,e=[],i=(r,n)=>{if(!e.includes(r))return e.push(r),t.allActions(r,s=>{if(!(s&393216))if(s&65536){let O=(s>>19)-n;if(O>1){let a=s&65535,l=this.stack.length-O*3;if(l>=0&&t.getGoto(this.stack[l],a,!1)>=0)return O<<19|65536|a}}else{let O=i(s,n+1);if(O!=null)return O}})};return i(this.state,0)}forceAll(){for(;!this.p.parser.stateFlag(this.state,2);)if(!this.forceReduce()){this.storeNode(0,this.pos,this.pos,4,!0);break}return this}get deadEnd(){if(this.stack.length!=3)return!1;let{parser:t}=this.p;return t.data[t.stateSlot(this.state,1)]==65535&&!t.stateSlot(this.state,4)}restart(){this.storeNode(0,this.pos,this.pos,4,!0),this.state=this.stack[0],this.stack.length=0}sameState(t){if(this.state!=t.state||this.stack.length!=t.stack.length)return!1;for(let e=0;e<this.stack.length;e+=3)if(this.stack[e]!=t.stack[e])return!1;return!0}get parser(){return this.p.parser}dialectEnabled(t){return this.p.parser.dialect.flags[t]}shiftContext(t,e){this.curContext&&this.updateContext(this.curContext.tracker.shift(this.curContext.context,t,this,this.p.stream.reset(e)))}reduceContext(t,e){this.curContext&&this.updateContext(this.curContext.tracker.reduce(this.curContext.context,t,this,this.p.stream.reset(e)))}emitContext(){let t=this.buffer.length-1;(t<0||this.buffer[t]!=-3)&&this.buffer.push(this.curContext.hash,this.pos,this.pos,-3)}emitLookAhead(){let t=this.buffer.length-1;(t<0||this.buffer[t]!=-4)&&this.buffer.push(this.lookAhead,this.pos,this.pos,-4)}updateContext(t){if(t!=this.curContext.context){let e=new Kt(this.curContext.tracker,t);e.hash!=this.curContext.hash&&this.emitContext(),this.curContext=e}}setLookAhead(t){t>this.lookAhead&&(this.emitLookAhead(),this.lookAhead=t)}close(){this.curContext&&this.curContext.tracker.strict&&this.emitContext(),this.lookAhead>0&&this.emitLookAhead()}}class Kt{constructor(t,e){this.tracker=t,this.context=e,this.hash=t.strict?t.hash(e):0}}class pe{constructor(t){this.start=t,this.state=t.state,this.stack=t.stack,this.base=this.stack.length}reduce(t){let e=t&65535,i=t>>19;i==0?(this.stack==this.start.stack&&(this.stack=this.stack.slice()),this.stack.push(this.state,0,0),this.base+=3):this.base-=(i-1)*3;let r=this.start.p.parser.getGoto(this.stack[this.base-3],e,!0);this.state=r}}class gt{constructor(t,e,i){this.stack=t,this.pos=e,this.index=i,this.buffer=t.buffer,this.index==0&&this.maybeNext()}static create(t,e=t.bufferBase+t.buffer.length){return new gt(t,e,e-t.bufferBase)}maybeNext(){let t=this.stack.parent;t!=null&&(this.index=this.stack.bufferBase-t.bufferBase,this.stack=t,this.buffer=t.buffer)}get id(){return this.buffer[this.index-4]}get start(){return this.buffer[this.index-3]}get end(){return this.buffer[this.index-2]}get size(){return this.buffer[this.index-1]}next(){this.index-=4,this.pos-=4,this.index==0&&this.maybeNext()}fork(){return new gt(this.stack,this.pos,this.index)}}function Qt(o,t=Uint16Array){if(typeof o!="string")return o;let e=null;for(let i=0,r=0;i<o.length;){let n=0;for(;;){let s=o.charCodeAt(i++),O=!1;if(s==126){n=65535;break}s>=92&&s--,s>=34&&s--;let a=s-32;if(a>=46&&(a-=46,O=!0),n+=a,O)break;n*=46}e?e[r++]=n:e=new t(n)}return e}class $t{constructor(){this.start=-1,this.value=-1,this.end=-1,this.extended=-1,this.lookAhead=0,this.mask=0,this.context=0}}const Gt=new $t;class ge{constructor(t,e){this.input=t,this.ranges=e,this.chunk="",this.chunkOff=0,this.chunk2="",this.chunk2Pos=0,this.next=-1,this.token=Gt,this.rangeIndex=0,this.pos=this.chunkPos=e[0].from,this.range=e[0],this.end=e[e.length-1].to,this.readNext()}resolveOffset(t,e){let i=this.range,r=this.rangeIndex,n=this.pos+t;for(;n<i.from;){if(!r)return null;let s=this.ranges[--r];n-=i.from-s.to,i=s}for(;e<0?n>i.to:n>=i.to;){if(r==this.ranges.length-1)return null;let s=this.ranges[++r];n+=s.from-i.to,i=s}return n}clipPos(t){if(t>=this.range.from&&t<this.range.to)return t;for(let e of this.ranges)if(e.to>t)return Math.max(t,e.from);return this.end}peek(t){let e=this.chunkOff+t,i,r;if(e>=0&&e<this.chunk.length)i=this.pos+t,r=this.chunk.charCodeAt(e);else{let n=this.resolveOffset(t,1);if(n==null)return-1;if(i=n,i>=this.chunk2Pos&&i<this.chunk2Pos+this.chunk2.length)r=this.chunk2.charCodeAt(i-this.chunk2Pos);else{let s=this.rangeIndex,O=this.range;for(;O.to<=i;)O=this.ranges[++s];this.chunk2=this.input.chunk(this.chunk2Pos=i),i+this.chunk2.length>O.to&&(this.chunk2=this.chunk2.slice(0,O.to-i)),r=this.chunk2.charCodeAt(0)}}return i>=this.token.lookAhead&&(this.token.lookAhead=i+1),r}acceptToken(t,e=0){let i=e?this.resolveOffset(e,-1):this.pos;if(i==null||i<this.token.start)throw new RangeError("Token end out of bounds");this.token.value=t,this.token.end=i}acceptTokenTo(t,e){this.token.value=t,this.token.end=e}getChunk(){if(this.pos>=this.chunk2Pos&&this.pos<this.chunk2Pos+this.chunk2.length){let{chunk:t,chunkPos:e}=this;this.chunk=this.chunk2,this.chunkPos=this.chunk2Pos,this.chunk2=t,this.chunk2Pos=e,this.chunkOff=this.pos-this.chunkPos}else{this.chunk2=this.chunk,this.chunk2Pos=this.chunkPos;let t=this.input.chunk(this.pos),e=this.pos+t.length;this.chunk=e>this.range.to?t.slice(0,this.range.to-this.pos):t,this.chunkPos=this.pos,this.chunkOff=0}}readNext(){return this.chunkOff>=this.chunk.length&&(this.getChunk(),this.chunkOff==this.chunk.length)?this.next=-1:this.next=this.chunk.charCodeAt(this.chunkOff)}advance(t=1){for(this.chunkOff+=t;this.pos+t>=this.range.to;){if(this.rangeIndex==this.ranges.length-1)return this.setDone();t-=this.range.to-this.pos,this.range=this.ranges[++this.rangeIndex],this.pos=this.range.from}return this.pos+=t,this.pos>=this.token.lookAhead&&(this.token.lookAhead=this.pos+1),this.readNext()}setDone(){return this.pos=this.chunkPos=this.end,this.range=this.ranges[this.rangeIndex=this.ranges.length-1],this.chunk="",this.next=-1}reset(t,e){if(e?(this.token=e,e.start=t,e.lookAhead=t+1,e.value=e.extended=-1):this.token=Gt,this.pos!=t){if(this.pos=t,t==this.end)return this.setDone(),this;for(;t<this.range.from;)this.range=this.ranges[--this.rangeIndex];for(;t>=this.range.to;)this.range=this.ranges[++this.rangeIndex];t>=this.chunkPos&&t<this.chunkPos+this.chunk.length?this.chunkOff=t-this.chunkPos:(this.chunk="",this.chunkOff=0),this.readNext()}return this}read(t,e){if(t>=this.chunkPos&&e<=this.chunkPos+this.chunk.length)return this.chunk.slice(t-this.chunkPos,e-this.chunkPos);if(t>=this.chunk2Pos&&e<=this.chunk2Pos+this.chunk2.length)return this.chunk2.slice(t-this.chunk2Pos,e-this.chunk2Pos);if(t>=this.range.from&&e<=this.range.to)return this.input.read(t,e);let i="";for(let r of this.ranges){if(r.from>=e)break;r.to>t&&(i+=this.input.read(Math.max(r.from,t),Math.min(r.to,e)))}return i}}class it{constructor(t,e){this.data=t,this.id=e}token(t,e){let{parser:i}=e.p;Qe(this.data,t,e,this.id,i.data,i.tokenPrecTable)}}it.prototype.contextual=it.prototype.fallback=it.prototype.extend=!1,it.prototype.fallback=it.prototype.extend=!1;function Qe(o,t,e,i,r,n){let s=0,O=1<<i,{dialect:a}=e.p.parser;t:for(;(O&o[s])!=0;){let l=o[s+1];for(let p=s+3;p<l;p+=2)if((o[p+1]&O)>0){let $=o[p];if(a.allows($)&&(t.token.value==-1||t.token.value==$||$e($,t.token.value,r,n))){t.acceptToken($);break}}let c=t.next,f=0,d=o[s+2];if(t.next<0&&d>f&&o[l+d*3-3]==65535){s=o[l+d*3-1];continue t}for(;f<d;){let p=f+d>>1,$=l+p+(p<<1),A=o[$],W=o[$+1]||65536;if(c<A)d=p;else if(c>=W)f=p+1;else{s=o[$+2],t.advance();continue t}}break}}function Ut(o,t,e){for(let i=t,r;(r=o[i])!=65535;i++)if(r==e)return i-t;return-1}function $e(o,t,e,i){let r=Ut(e,i,t);return r<0||Ut(e,i,o)<r}const v=typeof process<"u"&&process.env&&/\bparse\b/.test(process.env.LOG);let At=null;function It(o,t,e){let i=o.cursor(R.IncludeAnonymous);for(i.moveTo(t);;)if(!(e<0?i.childBefore(t):i.childAfter(t)))for(;;){if((e<0?i.to<t:i.from>t)&&!i.type.isError)return e<0?Math.max(0,Math.min(i.to-1,t-25)):Math.min(o.length,Math.max(i.from+1,t+25));if(e<0?i.prevSibling():i.nextSibling())break;if(!i.parent())return e<0?0:o.length}}class Pe{constructor(t,e){this.fragments=t,this.nodeSet=e,this.i=0,this.fragment=null,this.safeFrom=-1,this.safeTo=-1,this.trees=[],this.start=[],this.index=[],this.nextFragment()}nextFragment(){let t=this.fragment=this.i==this.fragments.length?null:this.fragments[this.i++];if(t){for(this.safeFrom=t.openStart?It(t.tree,t.from+t.offset,1)-t.offset:t.from,this.safeTo=t.openEnd?It(t.tree,t.to+t.offset,-1)-t.offset:t.to;this.trees.length;)this.trees.pop(),this.start.pop(),this.index.pop();this.trees.push(t.tree),this.start.push(-t.offset),this.index.push(0),this.nextStart=this.safeFrom}else this.nextStart=1e9}nodeAt(t){if(t<this.nextStart)return null;for(;this.fragment&&this.safeTo<=t;)this.nextFragment();if(!this.fragment)return null;for(;;){let e=this.trees.length-1;if(e<0)return this.nextFragment(),null;let i=this.trees[e],r=this.index[e];if(r==i.children.length){this.trees.pop(),this.start.pop(),this.index.pop();continue}let n=i.children[r],s=this.start[e]+i.positions[r];if(s>t)return this.nextStart=s,null;if(n instanceof C){if(s==t){if(s<this.safeFrom)return null;let O=s+n.length;if(O<=this.safeTo){let a=n.prop(k.lookAhead);if(!a||O+a<this.fragment.to)return n}}this.index[e]++,s+n.length>=Math.max(this.safeFrom,t)&&(this.trees.push(n),this.start.push(s),this.index.push(0))}else this.index[e]++,this.nextStart=s+n.length}}}class me{constructor(t,e){this.stream=e,this.tokens=[],this.mainToken=null,this.actions=[],this.tokens=t.tokenizers.map(i=>new $t)}getActions(t){let e=0,i=null,{parser:r}=t.p,{tokenizers:n}=r,s=r.stateSlot(t.state,3),O=t.curContext?t.curContext.hash:0,a=0;for(let l=0;l<n.length;l++){if((1<<l&s)==0)continue;let c=n[l],f=this.tokens[l];if(!(i&&!c.fallback)&&((c.contextual||f.start!=t.pos||f.mask!=s||f.context!=O)&&(this.updateCachedToken(f,c,t),f.mask=s,f.context=O),f.lookAhead>f.end+25&&(a=Math.max(f.lookAhead,a)),f.value!=0)){let d=e;if(f.extended>-1&&(e=this.addActions(t,f.extended,f.end,e)),e=this.addActions(t,f.value,f.end,e),!c.extend&&(i=f,e>d))break}}for(;this.actions.length>e;)this.actions.pop();return a&&t.setLookAhead(a),!i&&t.pos==this.stream.end&&(i=new $t,i.value=t.p.parser.eofTerm,i.start=i.end=t.pos,e=this.addActions(t,i.value,i.end,e)),this.mainToken=i,this.actions}getMainToken(t){if(this.mainToken)return this.mainToken;let e=new $t,{pos:i,p:r}=t;return e.start=i,e.end=Math.min(i+1,r.stream.end),e.value=i==r.stream.end?r.parser.eofTerm:0,e}updateCachedToken(t,e,i){let r=this.stream.clipPos(i.pos);if(e.token(this.stream.reset(r,t),i),t.value>-1){let{parser:n}=i.p;for(let s=0;s<n.specialized.length;s++)if(n.specialized[s]==t.value){let O=n.specializers[s](this.stream.read(t.start,t.end),i);if(O>=0&&i.p.parser.dialect.allows(O>>1)){(O&1)==0?t.value=O>>1:t.extended=O>>1;break}}}else t.value=0,t.end=this.stream.clipPos(r+1)}putAction(t,e,i,r){for(let n=0;n<r;n+=3)if(this.actions[n]==t)return r;return this.actions[r++]=t,this.actions[r++]=e,this.actions[r++]=i,r}addActions(t,e,i,r){let{state:n}=t,{parser:s}=t.p,{data:O}=s;for(let a=0;a<2;a++)for(let l=s.stateSlot(n,a?2:1);;l+=3){if(O[l]==65535)if(O[l+1]==1)l=Y(O,l+2);else{r==0&&O[l+1]==2&&(r=this.putAction(Y(O,l+2),e,i,r));break}O[l]==e&&(r=this.putAction(Y(O,l+1),e,i,r))}return r}}class ke{constructor(t,e,i,r){this.parser=t,this.input=e,this.ranges=r,this.recovering=0,this.nextStackID=9812,this.minStackPos=0,this.reused=[],this.stoppedAt=null,this.lastBigReductionStart=-1,this.lastBigReductionSize=0,this.bigReductionCount=0,this.stream=new ge(e,r),this.tokens=new me(t,this.stream),this.topTerm=t.top[1];let{from:n}=r[0];this.stacks=[pt.start(this,t.top[0],n)],this.fragments=i.length&&this.stream.end-n>t.bufferLength*4?new Pe(i,t.nodeSet):null}get parsedPos(){return this.minStackPos}advance(){let t=this.stacks,e=this.minStackPos,i=this.stacks=[],r,n;if(this.bigReductionCount>300&&t.length==1){let[s]=t;for(;s.forceReduce()&&s.stack.length&&s.stack[s.stack.length-2]>=this.lastBigReductionStart;);this.bigReductionCount=this.lastBigReductionSize=0}for(let s=0;s<t.length;s++){let O=t[s];for(;;){if(this.tokens.mainToken=null,O.pos>e)i.push(O);else{if(this.advanceStack(O,i,t))continue;{r||(r=[],n=[]),r.push(O);let a=this.tokens.getMainToken(O);n.push(a.value,a.end)}}break}}if(!i.length){let s=r&&we(r);if(s)return v&&console.log("Finish with "+this.stackID(s)),this.stackToTree(s);if(this.parser.strict)throw v&&r&&console.log("Stuck with token "+(this.tokens.mainToken?this.parser.getName(this.tokens.mainToken.value):"none")),new SyntaxError("No parse at "+e);this.recovering||(this.recovering=5)}if(this.recovering&&r){let s=this.stoppedAt!=null&&r[0].pos>this.stoppedAt?r[0]:this.runRecovery(r,n,i);if(s)return v&&console.log("Force-finish "+this.stackID(s)),this.stackToTree(s.forceAll())}if(this.recovering){let s=this.recovering==1?1:this.recovering*3;if(i.length>s)for(i.sort((O,a)=>a.score-O.score);i.length>s;)i.pop();i.some(O=>O.reducePos>e)&&this.recovering--}else if(i.length>1){t:for(let s=0;s<i.length-1;s++){let O=i[s];for(let a=s+1;a<i.length;a++){let l=i[a];if(O.sameState(l)||O.buffer.length>500&&l.buffer.length>500)if((O.score-l.score||O.buffer.length-l.buffer.length)>0)i.splice(a--,1);else{i.splice(s--,1);continue t}}}i.length>12&&i.splice(12,i.length-12)}this.minStackPos=i[0].pos;for(let s=1;s<i.length;s++)i[s].pos<this.minStackPos&&(this.minStackPos=i[s].pos);return null}stopAt(t){if(this.stoppedAt!=null&&this.stoppedAt<t)throw new RangeError("Can't move stoppedAt forward");this.stoppedAt=t}advanceStack(t,e,i){let r=t.pos,{parser:n}=this,s=v?this.stackID(t)+" -> ":"";if(this.stoppedAt!=null&&r>this.stoppedAt)return t.forceReduce()?t:null;if(this.fragments){let l=t.curContext&&t.curContext.tracker.strict,c=l?t.curContext.hash:0;for(let f=this.fragments.nodeAt(r);f;){let d=this.parser.nodeSet.types[f.type.id]==f.type?n.getGoto(t.state,f.type.id):-1;if(d>-1&&f.length&&(!l||(f.prop(k.contextHash)||0)==c))return t.useNode(f,d),v&&console.log(s+this.stackID(t)+` (via reuse of ${n.getName(f.type.id)})`),!0;if(!(f instanceof C)||f.children.length==0||f.positions[0]>0)break;let p=f.children[0];if(p instanceof C&&f.positions[0]==0)f=p;else break}}let O=n.stateSlot(t.state,4);if(O>0)return t.reduce(O),v&&console.log(s+this.stackID(t)+` (via always-reduce ${n.getName(O&65535)})`),!0;if(t.stack.length>=8400)for(;t.stack.length>6e3&&t.forceReduce(););let a=this.tokens.getActions(t);for(let l=0;l<a.length;){let c=a[l++],f=a[l++],d=a[l++],p=l==a.length||!i,$=p?t:t.split(),A=this.tokens.mainToken;if($.apply(c,f,A?A.start:$.pos,d),v&&console.log(s+this.stackID($)+` (via ${(c&65536)==0?"shift":`reduce of ${n.getName(c&65535)}`} for ${n.getName(f)} @ ${r}${$==t?"":", split"})`),p)return!0;$.pos>r?e.push($):i.push($)}return!1}advanceFully(t,e){let i=t.pos;for(;;){if(!this.advanceStack(t,null,null))return!1;if(t.pos>i)return Yt(t,e),!0}}runRecovery(t,e,i){let r=null,n=!1;for(let s=0;s<t.length;s++){let O=t[s],a=e[s<<1],l=e[(s<<1)+1],c=v?this.stackID(O)+" -> ":"";if(O.deadEnd&&(n||(n=!0,O.restart(),v&&console.log(c+this.stackID(O)+" (restarted)"),this.advanceFully(O,i))))continue;let f=O.split(),d=c;for(let p=0;f.forceReduce()&&p<10&&(v&&console.log(d+this.stackID(f)+" (via force-reduce)"),!this.advanceFully(f,i));p++)v&&(d=this.stackID(f)+" -> ");for(let p of O.recoverByInsert(a))v&&console.log(c+this.stackID(p)+" (via recover-insert)"),this.advanceFully(p,i);this.stream.end>O.pos?(l==O.pos&&(l++,a=0),O.recoverByDelete(a,l),v&&console.log(c+this.stackID(O)+` (via recover-delete ${this.parser.getName(a)})`),Yt(O,i)):(!r||r.score<O.score)&&(r=O)}return r}stackToTree(t){return t.close(),C.build({buffer:gt.create(t),nodeSet:this.parser.nodeSet,topID:this.topTerm,maxBufferLength:this.parser.bufferLength,reused:this.reused,start:this.ranges[0].from,length:t.pos-this.ranges[0].from,minRepeatType:this.parser.minRepeatTerm})}stackID(t){let e=(At||(At=new WeakMap)).get(t);return e||At.set(t,e=String.fromCodePoint(this.nextStackID++)),e+t}}function Yt(o,t){for(let e=0;e<t.length;e++){let i=t[e];if(i.pos==o.pos&&i.sameState(o)){t[e].score<o.score&&(t[e]=o);return}}t.push(o)}class ye{constructor(t,e,i){this.source=t,this.flags=e,this.disabled=i}allows(t){return!this.disabled||this.disabled[t]==0}}class Pt extends re{constructor(t){if(super(),this.wrappers=[],t.version!=14)throw new RangeError(`Parser version (${t.version}) doesn't match runtime version (14)`);let e=t.nodeNames.split(" ");this.minRepeatTerm=e.length;for(let O=0;O<t.repeatNodeCount;O++)e.push("");let i=Object.keys(t.topRules).map(O=>t.topRules[O][1]),r=[];for(let O=0;O<e.length;O++)r.push([]);function n(O,a,l){r[O].push([a,a.deserialize(String(l))])}if(t.nodeProps)for(let O of t.nodeProps){let a=O[0];typeof a=="string"&&(a=k[a]);for(let l=1;l<O.length;){let c=O[l++];if(c>=0)n(c,a,O[l++]);else{let f=O[l+-c];for(let d=-c;d>0;d--)n(O[l++],a,f);l++}}}this.nodeSet=new wt(e.map((O,a)=>V.define({name:a>=this.minRepeatTerm?void 0:O,id:a,props:r[a],top:i.indexOf(a)>-1,error:a==0,skipped:t.skippedNodes&&t.skippedNodes.indexOf(a)>-1}))),t.propSources&&(this.nodeSet=this.nodeSet.extend(...t.propSources)),this.strict=!1,this.bufferLength=1024;let s=Qt(t.tokenData);this.context=t.context,this.specializerSpecs=t.specialized||[],this.specialized=new Uint16Array(this.specializerSpecs.length);for(let O=0;O<this.specializerSpecs.length;O++)this.specialized[O]=this.specializerSpecs[O].term;this.specializers=this.specializerSpecs.map(Zt),this.states=Qt(t.states,Uint32Array),this.data=Qt(t.stateData),this.goto=Qt(t.goto),this.maxTerm=t.maxTerm,this.tokenizers=t.tokenizers.map(O=>typeof O=="number"?new it(s,O):O),this.topRules=t.topRules,this.dialects=t.dialects||{},this.dynamicPrecedences=t.dynamicPrecedences||null,this.tokenPrecTable=t.tokenPrec,this.termNames=t.termNames||null,this.maxNode=this.nodeSet.types.length-1,this.dialect=this.parseDialect(),this.top=this.topRules[Object.keys(this.topRules)[0]]}createParse(t,e,i){let r=new ke(this,t,e,i);for(let n of this.wrappers)r=n(r,t,e,i);return r}getGoto(t,e,i=!1){let r=this.goto;if(e>=r[0])return-1;for(let n=r[e+1];;){let s=r[n++],O=s&1,a=r[n++];if(O&&i)return a;for(let l=n+(s>>1);n<l;n++)if(r[n]==t)return a;if(O)return-1}}hasAction(t,e){let i=this.data;for(let r=0;r<2;r++)for(let n=this.stateSlot(t,r?2:1),s;;n+=3){if((s=i[n])==65535)if(i[n+1]==1)s=i[n=Y(i,n+2)];else{if(i[n+1]==2)return Y(i,n+2);break}if(s==e||s==0)return Y(i,n+1)}return 0}stateSlot(t,e){return this.states[t*6+e]}stateFlag(t,e){return(this.stateSlot(t,0)&e)>0}validAction(t,e){return!!this.allActions(t,i=>i==e?!0:null)}allActions(t,e){let i=this.stateSlot(t,4),r=i?e(i):void 0;for(let n=this.stateSlot(t,1);r==null;n+=3){if(this.data[n]==65535)if(this.data[n+1]==1)n=Y(this.data,n+2);else break;r=e(Y(this.data,n+1))}return r}nextStates(t){let e=[];for(let i=this.stateSlot(t,1);;i+=3){if(this.data[i]==65535)if(this.data[i+1]==1)i=Y(this.data,i+2);else break;if((this.data[i+2]&1)==0){let r=this.data[i+1];e.some((n,s)=>s&1&&n==r)||e.push(this.data[i],r)}}return e}configure(t){let e=Object.assign(Object.create(Pt.prototype),this);if(t.props&&(e.nodeSet=this.nodeSet.extend(...t.props)),t.top){let i=this.topRules[t.top];if(!i)throw new RangeError(`Invalid top rule name ${t.top}`);e.top=i}return t.tokenizers&&(e.tokenizers=this.tokenizers.map(i=>{let r=t.tokenizers.find(n=>n.from==i);return r?r.to:i})),t.specializers&&(e.specializers=this.specializers.slice(),e.specializerSpecs=this.specializerSpecs.map((i,r)=>{let n=t.specializers.find(O=>O.from==i.external);if(!n)return i;let s=Object.assign(Object.assign({},i),{external:n.to});return e.specializers[r]=Zt(s),s})),t.contextTracker&&(e.context=t.contextTracker),t.dialect&&(e.dialect=this.parseDialect(t.dialect)),t.strict!=null&&(e.strict=t.strict),t.wrap&&(e.wrappers=e.wrappers.concat(t.wrap)),t.bufferLength!=null&&(e.bufferLength=t.bufferLength),e}hasWrappers(){return this.wrappers.length>0}getName(t){return this.termNames?this.termNames[t]:String(t<=this.maxNode&&this.nodeSet.types[t].name||t)}get eofTerm(){return this.maxNode+1}get topNode(){return this.nodeSet.types[this.top[1]]}dynamicPrecedence(t){let e=this.dynamicPrecedences;return e==null?0:e[t]||0}parseDialect(t){let e=Object.keys(this.dialects),i=e.map(()=>!1);if(t)for(let n of t.split(" ")){let s=e.indexOf(n);s>=0&&(i[s]=!0)}let r=null;for(let n=0;n<e.length;n++)if(!i[n])for(let s=this.dialects[e[n]],O;(O=this.data[s++])!=65535;)(r||(r=new Uint8Array(this.maxTerm+1)))[O]=1;return new ye(t,i,r)}static deserialize(t){return new Pt(t)}}function Y(o,t){return o[t]|o[t+1]<<16}function we(o){let t=null;for(let e of o){let i=e.p.stoppedAt;(e.pos==e.p.stream.end||i!=null&&e.pos>i)&&e.p.parser.stateFlag(e.state,2)&&(!t||t.score<e.score)&&(t=e)}return t}function Zt(o){if(o.external){let t=o.extend?1:0;return(e,i)=>o.external(e,i)<<1|t}return o.get}const Se=le({ControlKeyword:h.controlKeyword,DeclarationKeyword:h.definitionKeyword,ModifierKeyword:h.modifier,TypeKeyword:h.typeName,"TypeName/Identifier":h.typeName,"CallName/Identifier":h.function(h.name),"MemberExpression/PropertyName/Identifier":h.propertyName,"CallExpression/MemberExpression/Identifier":h.function(h.name),"CallExpression/Identifier":h.function(h.name),Identifier:h.name,OperatorKeyword:h.operatorKeyword,Operator:h.operator,CompareOp:h.operator,LogicalOp:h.operator,LineComment:h.comment,MultiLineComment:h.comment,Pragma:h.annotation,StringLiteral:h.string,TypedStringLiteral:h.string,"TypedStringLiteral/TypeKeyword":h.string,NumericLiteral:h.number,TypedNumericLiteral:h.number,"TypedNumericLiteral/TypeKeyword":h.number,DateTimeLiteral:h.number,TypedDateTimeLiteral:h.number,"TypedDateTimeLiteral/TypeKeyword":h.number,BooleanLiteral:h.bool,Punc:h.punctuation}),xe={__proto__:null,VAR:16,VAR_INPUT:18,VAR_IN_OUT:20,VAR_OUTPUT:22,VAR_TEMP:24,VAR_STAT:26,VAR_INST:28,VAR_GLOBAL:30,VAR_EXTERNAL:32,VAR_CONFIG:34,CONSTANT:36,PERSISTENT:38,RETAIN:40,AT:44,BOOL:52,BYTE:54,SINT:56,USINT:58,WORD:60,INT:62,UINT:64,DWORD:66,DINT:68,UDINT:70,LWORD:72,LINT:74,ULINT:76,REAL:78,LREAL:80,CHAR:82,WCHAR:84,STRING:86,WSTRING:88,TIME:90,LTIME:92,DATE_AND_TIME:94,LDATE_AND_TIME:96,DATE:98,LDATE:100,TIME_OF_DAY:102,LTIME_OF_DAY:104,BIT:106,ANY:108,ANY_DATE:110,ANY_BIT:112,ANY_NUM:114,ANY_REAL:116,ANY_INT:118,ANY_STRING:120,UCHAR:122,USTRING:124,POINTER:126,TO:128,REFERENCE:130,ARRAY:132,SUPER:136,THIS:138,TRUE:150,FALSE:150,NOT:162,MOD:170,AND:174,OR:176,AND_THEN:178,OR_ELSE:180,XOR:182,"REF=":200,OF:212,END_VAR:216,TYPE:220,EXTENDS:222,STRUCT:224,END_STRUCT:226,END_TYPE:228,UNION:230,END_UNION:232,PROGRAM:234,METHOD:240,IF:246,THEN:248,ELSIF:250,ELSE:252,END_IF:254,CASE:258,END_CASE:260,FOR:264,BY:266,DO:268,END_FOR:270,WHILE:272,END_WHILE:274,REPEAT:276,UNTIL:278,END_REPEAT:280,RETURN:284,EXIT:286,CONTINUE:288,JMP:292,END_METHOD:298,PROPERTY_GET:304,PROPERTY_SET:306,PUBLIC:308,PRIVATE:310,INTERNAL:312,PROTECTED:314,FINAL:316,END_PROPERTY:318,END_PROGRAM:320,FUNCTION:324,END_FUNCTION:326,FUNCTION_BLOCK:330,IMPLEMENTS:332,END_FUNCTION_BLOCK:334,INTERFACE:338,END_INTERFACE:340},be=Pt.deserialize({version:14,states:"GSQ`QPOOO(YQPO'#CuOOQO'#Gd'#GdO(dQPO'#DtOOQO'#D{'#D{O(iQPO'#DzOOQO'#EO'#EOO(iQPO'#D}O+qQPO'#FeO,lQPO'#E]O&`QPO'#GjOOQO'#Gj'#GjOOQO'#Ek'#EkOOQO'#FT'#FTOOQO'#Ff'#FfOOQO'#HS'#HSOOQO'#Ca'#CaOOQO'#F}'#F}Q`QPOOO,qQPO'#CbO-SQPO'#EmO-XQPO'#G|O-^QPO'#EwO(iQPO'#EzO(iQPO'#FQO-cQPO'#HUO(iQPO'#HVO-nQPO'#HWO&ZQPO'#F_O.eQPO'#FcO.jQPO'#EvO0PQPO'#FiO0eQPO'#FhO1zQPO'#HRO-^QPO'#FsO2PQPO'#HYO-SQPO'#FvO3fQPO'#HZO-SQPO'#FzO5UQPO'#H[OOQO'#Ea'#EaOOQO'#Eb'#EbOOQO'#Ec'#EcO(iQPO,5:zO5^QPO,5:zO5iQPO,5:`O6lQPO,5:fO6sQPO,5:iOOQO'#ER'#EROOQO'#ES'#ESO(iQPO,5:lO(iQPO,5:lO(iQPO,5:lO(iQPO,5:lO7mQQO'#EfOOQO,5;P,5;POOQO,5<P,5<POOQO'#EU'#EUOOQO'#E_'#E_O7wQPO'#GQO7|QPO,5:wOOQO-E9{-E9{OOQO'#GO'#GOO9yQPO,58|O:[QPO'#CqOOQO'#GP'#GPO:dQPO,58|OOQO'#G_'#G_OOQO,58|,58|OOQO'#Cu'#CuO:lQPO,5;XOOQO'#Ct'#CtO=^QPO,5=hOOQO'#Ey'#EyO=kQPO,5;cOBXQPO,5;fOB`QPO,5;lOBgQPO'#E^OBxQPO'#E`OCWQPO,5=pOC]QPO,5=qOOQO'#GW'#GWOCdQPO,5=rO(iQPO,5=rOOQO,5;y,5;yO&ZQPO,5;}OOQO'#GV'#GVODZQPO,5;bOOQO,5;b,5;bOOQO'#HX'#HXO-XQPO,5<TO-^QPO,5<TOEpQPO,5<SOGVQPO,5<SOG[QPO,5=mOHzQPO,5<_OMhQPO,5=tOOQO,5=t,5=tON}QPO,5<bOOQO'#GU'#GUO!%wQPO,5=uOOQO,5=u,5=uOOQO,5<f,5<fOOQO'#GZ'#GZO!'gQPO,5=vOOQO,5=v,5=vO!'oQPO1G0fO(iQPO1G0fOOQO1G/z1G/zOOQO1G/|1G/|OOQO1G0O1G0OOOQO'#D|'#D|OOQO1G0Q1G0QO!)|QPO1G0WO!*ZQPO1G0WO!+uQPO1G0WO!,YQPO1G0WO!,mQPO'#GvO(iQPO'#GvO!,wQPO,5;QOOQO,5<l,5<lOOQO-E:O-E:OOOQO-E9|-E9|O!,|QPO1G.hOOQO1G.h1G.hO!-UQPO,59]O!/wQPO,59]OOQO-E9}-E9}O-SQPO1G0sO!/|QPO1G3SO!0XQPO1G3TO!0dQPO1G3UO!0kQPO1G3WO!0pQPO1G0}O!3`QPO1G1QO!4]QPO1G1WO(iQPO1G3[O!4gQPO1G3]OOQO-E:U-E:UO(iQPO1G3^O!5^QPO1G3^OOQO1G1i1G1iOOQO-E:T-E:TOOQO1G0|1G0|O!0pQPO1G1oO-XQPO1G1oO!5eQPO1G1nOOQO1G1n1G1nO!5jQPO1G3XOOQO1G3X1G3XO!0pQPO1G1yOOQO1G3`1G3`O-SQPO1G1|O-SQPO1G1|OOQO-E:S-E:SOOQO1G3a1G3aOOQO-E:X-E:XOOQO1G3b1G3bO!7YQPO7+&QOOQO'#Eg'#EgO!8SQQO'#GRO!8ZQPO,5=bO!8cQPO,5=bOOQO1G0l1G0lOOQO7+$S7+$SO!8mQPO1G.wO!8uQPO'#GeO!8zQPO'#GfO!9PQPO'#GgO!9UQSO'#G`O-XQPO1G.wOOQO7+&_7+&_O!9ZQPO7+(nOOQO7+(n7+(nO!9aQPO7+(nO!9fQPO7+(oOOQO7+(o7+(oO!9qQPO7+(oO!9vQPO'#HPO!,wQPO7+(pOOQO7+(r7+(rOOQO7+&i7+&iO!:QQPO7+&lO!:}QPO7+&lO(iQPO'#GXOOQO7+&l7+&lO!;YQPO7+&lO!<PQPO'#HTOOQO'#GY'#GYO!<WQPO7+&rOOQO7+&r7+&rO!<bQPO7+&rO!=XQPO7+(vO!=cQPO7+(wOOQO7+(w7+(wO!>YQPO7+(xOOQO7+(x7+(xOOQO7+'Z7+'ZO!0pQPO7+'ZOOQO7+'Y7+'YOOQO7+(s7+(sOOQO7+'e7+'eOOQO7+'h7+'hO!>aQPO7+'hO!CWQPO,5<mO(iQPO,5<mOOQO-E:P-E:PO!CbQPO1G2|OOQO7+$c7+$cO(iQPO7+$cO!CjQPO,5=PO!CjQPO,5=QOOQO'#Dq'#DqO!FSQPO,5=RO!FZQPO,5<zO!-UQPO7+$cOOQO<<LY<<LYO!F`QPO<<LYOOQO<<LZ<<LZO!FeQPO<<LZO(iQPO'#GTO!FjQPO,5=kO&ZQPO<<L[O!FrQPO<<JWOOQO<<JW<<JWO!F}QPO<<JWOOQO-E:V-E:VO!GtQPO,5<sO!F}QPO<<JWO!HmQPO,5=oOOQO-E:W-E:WOOQO<<J^<<J^O!K}QPO<<J^O!K}QPO<<J^O!LtQPO<<LbO(iQPO<<LbOOQO<<Lc<<LcOOQO<<Ld<<LdOOQO<<Ju<<JuO-SQPO<<KSO!MkQPO1G2XO+qQPO<<G}OOQO1G2k1G2kOOQO1G2l1G2lO!MuQPO'#GiO!M|QPO1G2mOOQO1G2f1G2fO!8mQPO<<G}OOQOANAtANAtOOQOANAuANAuO!NRQPO,5<oOOQO-E:R-E:RO!N]QPOANAvOOQOAN?rAN?rO!NbQPOAN?rO!NbQPOAN?rO# XQPO1G2_O#!UQPO1G3ZO#%fQPOAN?xOOQOAN?xAN?xO#&]QPOANA|OOQOANA|ANA|O#'SQPOANA|OOQOAN@nAN@nOOQOAN=iAN=iOOQO'#Eh'#EhO(iQPO,5=TOOQO'#Ei'#EiO#'ZQPO7+(XO(iQPOAN=iOOQOG27bG27bO#'`QPOG25^OOQOG25^G25^O#(VQPO7+'yOOQOG25dG25dOOQOG27hG27hO#)SQPOG27hO#)yQPO1G2oO!CjQPO<<KsO+qQPOG23TOOQOLD*xLD*xO#*TQPOLD-SOOQOLD-SLD-SO(iQPO'#GSO#*zQPO7+(ZOOQOANA_ANA_OOQOLD(oLD(oOOQO!$(!n!$(!nO!MuQPO,5<nOOQO-E:Q-E:QO(iQPO1G2YO#+SQPO7+'t",stateData:"#+e~O%QOSPOSQOSROS~OVPOWcOXcOYcOZcO[cO]cO^cO_cO`cOacOgZOjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO!fYO!gYO!iZO!kZO!mZO!sVO#bdO#iqO#lfO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$^oO$_oO$hrO$ktO$ovO%`SO%bUO%cUO%o[O~O#W{O%gxO%hyO%izO!w%^X!y%^X!z%^X!{%^X!|%^X!}%^X#O%^X%`%^X%b%^X%c%^X%d%^X%e%^X%o%^X%a%^X#p%^X#^%^X#z%^X%l%^X$Q%^X%V%^X!b%^X#y%^X%m%^X%n%^X~O%_iX%f#QX~P&`O%_}O~OVPOgZOjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO!fYO!gYO!iZO!kZO!mZO!sVO%`SO%bUO%cUO~O!w!SO!y!ZO!z!ZO!{!ZO!|!ZO!}!ZO#O!VO%`SO%bUO%cUO%d!QO%e!RO%o[O~O%f![O~OV!bOb!eOc!eOd!eO#`!fO~OV!gO~O%V!iO~OV!kO~OV!oO!f!pO!g!pO~O#ogO#uhO#xiO#|jO$OkO$P!uO$SlO$TlO$UlO$WmO%o[O~P(iOV!wO~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$Z!zO%o[O~P(iOV!kO$`!{O$a!{O$b!{O$c!{O$d!{O~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$Z#PO%o[O~P(iOV#QO~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$i#TO%o[O~P(iOWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#lfO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$^oO$_oO$m#XO%o[O~P(iO#lfO$p#]O~O#W#_O%hyO%izO~Og#`O!i#aO!k#bO~O!w!SO!y!ZO!z!ZO!{!ZO!|!ZO!}!ZO#O!VO%`SO%bUO%cUO%d!QO%e!RO~O%a#cO~P5tO%o!qa%a!qa#p!qa#^!qa#z!qa%l!qa$Q!qa%V!qa!b!qa#y!qa%m!qa%n!qa~P5tO%k#jO%a%jP~P(iOV#lO~O%f![O!w#Pa!y#Pa!z#Pa!{#Pa!|#Pa!}#Pa#O#Pa#W#Pa%`#Pa%b#Pa%c#Pa%d#Pa%e#Pa%g#Pa%h#Pa%i#Pa%o#Pa%a#Pa#p#Pa#^#Pa#z#Pa%l#Pa$Q#Pa%V#Pa!b#Pa#y#Pa%m#Pa%n#Pa~OV!bOb!eOc!eOd!eO#`#pO~Of#rO%V!iO~OV!bO#`#pO~O#c#tO%V#aa~OjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO%`SO~OV!gO#d#uO#g#vO~P:tO%V!iOV#kaW#kaX#kaY#kaZ#ka[#ka]#ka^#ka_#ka`#kaa#kag#kaj#kak#kal#kam#kan#kao#kap#kaq#kar#kas#kat#kau#kav#kaw#kax#kay#kaz#ka{#ka|#ka}#ka!O#ka!P#ka!Q#ka!R#ka!S#ka!T#ka!U#ka!V#ka!W#ka!X#ka!Y#ka!Z#ka![#ka!]#ka!^#ka!_#ka!`#ka!f#ka!g#ka!i#ka!k#ka!m#ka!s#ka#o#ka#u#ka#x#ka#|#ka$O#ka$S#ka$T#ka$U#ka$W#ka$Z#ka%`#ka%b#ka%c#ka%o#ka~O#p#zO~P5tO#^#{O~P5tO#W{O%gxO%hyO%izO%f#QX~O#W{O%gxO%hyO%izO~O!b#|O~O#z#}O~P5tO#ogO#uhO#xiO#|jO$OkO$P$PO$SlO$TlO$UlO$WmO%o[O~P(iOWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$Z$TO%o[O~P(iOWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$Z$WO%o[O~P(iO$e$XO~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#lfO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$^oO$_oO$f$ZO%o[O~P(iO%V!iOV$gaW$gaX$gaY$gaZ$ga[$ga]$ga^$ga_$ga`$gaa$gag$gaj$gak$gal$gam$gan$gao$gap$gaq$gar$gas$gat$gau$gav$gaw$gax$gay$gaz$ga{$ga|$ga}$ga!O$ga!P$ga!Q$ga!R$ga!S$ga!T$ga!U$ga!V$ga!W$ga!X$ga!Y$ga!Z$ga![$ga!]$ga!^$ga!_$ga!`$ga!f$ga!g$ga!i$ga!k$ga!m$ga!s$ga#o$ga#u$ga#x$ga#|$ga$O$ga$S$ga$T$ga$U$ga$W$ga$i$ga%`$ga%b$ga%c$ga%o$ga~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$i$]O%o[O~P(iO#c$_O$l$^OV$jaW$jaX$jaY$jaZ$ja[$ja]$ja^$ja_$ja`$jaa$jag$jaj$jak$jal$jam$jan$jao$jap$jaq$jar$jas$jat$jau$jav$jaw$jax$jay$jaz$ja{$ja|$ja}$ja!O$ja!P$ja!Q$ja!R$ja!S$ja!T$ja!U$ja!V$ja!W$ja!X$ja!Y$ja!Z$ja![$ja!]$ja!^$ja!_$ja!`$ja!f$ja!g$ja!i$ja!k$ja!m$ja!s$ja#l$ja#o$ja#u$ja#x$ja#|$ja$O$ja$S$ja$T$ja$U$ja$W$ja$^$ja$_$ja$m$ja%`$ja%b$ja%c$ja%o$ja~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#lfO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$^oO$_oO$m$aO%o[O~P(iO#lfO$p$cO~O%o#Si%a#Si#p#Si#^#Si!b#Si#z#Si%l#Si$Q#Si%V#Si#y#Si%m#Si%n#Si~P5tO%`SO!y!ti!z!ti!{!ti!|!ti!}!ti#O!ti%b!ti%c!ti%o!ti%a!ti#p!ti#^!ti#z!ti%l!ti$Q!ti%V!ti!b!ti#y!ti%m!ti%n!ti~O!w!ti%d!ti%e!ti~P!(iO!w!SO%d!QO%e!RO~P!(iO!w!SO%`SO%bUO%cUO%d!QO%e!RO#O!ti%o!ti%a!ti#p!ti#^!ti#z!ti%l!ti$Q!ti%V!ti!b!ti#y!ti%m!ti%n!ti~O!y!ti!z!ti!{!ti!|!ti!}!ti~P!*hO!y!ZO!z!ZO!{!ZO!|!ZO!}!ZO~P!*hO%l$eO%a%jX~P5tO%a#cO~OV!bO#`$jO~OV!gOjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO!a$lO!c$mO!d$nO~O%T$oO~OV!bO#e$tO#f$sO~OV!bO#f$vO#h$wO~O%a%sP~P(iO#f$zO~OV!gOjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO!a$lO!c$mO~O#ogO#q%OO#r%QO#s%PO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#r%VO#v%UO~P(iO#ogO#uhO#xiO#|jO#}%YO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO$Q%[O~P5tO$e%_O~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#lfO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$^oO$_oO$f%`O%o[O~P(iO%o#Sq%a#Sq#p#Sq#^#Sq!b#Sq#z#Sq%l#Sq$Q#Sq%V#Sq#y#Sq%m#Sq%n#Sq~P5tO%k%eO~P(iO%l$eO%a%ja~O%l$eO%a%ja~P5tO%hyO%o[O~O!b%jO~O!b%kO~O%[%lO~O%U%nO~OV!bO#e%qO#f%pO~OV!bO#f%rO#h%sO~O#f%rO~O%l$eO%a%sX~P5tO#ogO#q%OO#r%yO#s%xO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#q%OO#r%yO#s%xO~O#ogO#s%xO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO%V!iO~P5tO#r&QO#v&PO~P(iO#ogO#uhO#v&PO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#y&TO#z&SO~P5tO#ogO#uhO#xiO#|jO#}&UO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO$Q&VO~P5tO$l&XOV$jqW$jqX$jqY$jqZ$jq[$jq]$jq^$jq_$jq`$jqa$jqg$jqj$jqk$jql$jqm$jqn$jqo$jqp$jqq$jqr$jqs$jqt$jqu$jqv$jqw$jqx$jqy$jqz$jq{$jq|$jq}$jq!O$jq!P$jq!Q$jq!R$jq!S$jq!T$jq!U$jq!V$jq!W$jq!X$jq!Y$jq!Z$jq![$jq!]$jq!^$jq!_$jq!`$jq!f$jq!g$jq!i$jq!k$jq!m$jq!s$jq#l$jq#o$jq#u$jq#x$jq#|$jq$O$jq$S$jq$T$jq$U$jq$W$jq$^$jq$_$jq$m$jq%`$jq%b$jq%c$jq%o$jq~O%a$ua%l$ua~P5tO%l$eO%a%ji~OV!gOjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO~O%n%]P~P(iOg&`O~O#f&bO~O#f&cO~O%l$eO%a%sa~O#q%OO#r&hO#s&gO~O#ogO#s&gO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#p&jO~P5tO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~OV%wag%waj%wak%wal%wam%wan%wao%wap%waq%war%was%wat%wau%wav%waw%wax%way%waz%wa{%wa|%wa}%wa!O%wa!P%wa!Q%wa!R%wa!S%wa!T%wa!U%wa!V%wa!W%wa!X%wa!Y%wa!Z%wa![%wa!]%wa!^%wa!_%wa!`%wa!f%wa!g%wa!i%wa!k%wa!m%wa!s%wa#r%wa#v%wa%`%wa%b%wa%c%wa~P!G{O#ogO#uhO#v&mO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#ogO#uhO#xiO#{&oO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO%a$ui%l$ui~P5tO%m&sO~P5tO%n&uO~O%a$wa%l$wa~P5tO#f&xO~O#ogO#s&zO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O#q${i#r${i#s${i~P(iOV%wig%wij%wik%wil%wim%win%wio%wip%wiq%wir%wis%wit%wiu%wiv%wiw%wix%wiy%wiz%wi{%wi|%wi}%wi!O%wi!P%wi!Q%wi!R%wi!S%wi!T%wi!U%wi!V%wi!W%wi!X%wi!Y%wi!Z%wi![%wi!]%wi!^%wi!_%wi!`%wi!f%wi!g%wi!i%wi!k%wi!m%wi!s%wi#r%wi#v%wi%`%wi%b%wi%c%wi~P!G{O#ogO#uhO#v&|O#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#ogO#uhO#xiO#{&}O#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#z'OO~P5tO#^'QO~O#ogO#s'SO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O#q${q#r${q#s${q~P(iO#ogO#uhO#xiO#{'UO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO%l$eO%n%]i~P5tO#ogO#uhO#xiO#{'ZO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO%l$eO%n%]q~O%l$vq%n$vq~P5tOP%dg%f!kV~",goto:"Fg&PPPPPP&Q&UPPPPPPPPPPPPPP&hPP&r'[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP)aPP)dP)dP)dP)d*x-R)d-[P)d/`/`P0PPPPPPP0n2V3l3p5X5_5nP)d5w6i6w6}P7QP8`PPPPPPPP8d8rP8|9YPPPPP9YPP9YPPPPPPPPP9YPPP9YP:Q9YP:v;QPPPPPPPPP;YPP;^PPP;bPP;f;l;r<U<[<f<l<r<|=[>`>j>pPPP>v>zPPP>}ARARAePAkAnPPPPPPPPPPPD`PPPPPDcDcDcDgDcDcDjEhElElElFdDcDcDcTaObS`Ob[!xnps!y#O#SX#Vu#Q#W$Ya!cc!a!d#o#u#v$r$uQ!jeQ#q!bQ#y!lQ$U!|Q$[#RQ%^$VQ%o$pR%}%R$YQOTVbghjknpsu{!S!T!U!V!W!j!t!u!y#O#Q#S#W#_#j#q#w#y#z#{#|#}$P$U$Y$[$f$|%O%Q%T%V%X%^%e%i%j%k%m%o%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'Q'T'V'^Q!hdQ#UtQ#YvQ$q#tQ%b$^Q%c$_R&q&XR%m$n#uZOTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^#tTOTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^!^!WW!O!P!m!n!r#^#e#f#g#h#i$Q$d$h$x%R%W%Z%d%{&Y&Z&^&d&p'P'R'['_R#w!jQ#d!OQ$i#kR%v$y#tVOTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^!Z!TW!O!P!m!n!r#^#g#h#i$Q$d$h$x%R%W%Z%d%{&Y&Z&^&d&p'P'R'['_!]!SW!O!P!m!n!r#^#f#g#h#i$Q$d$h$x%R%W%Z%d%{&Y&Z&^&d&p'P'R'['_!X!UW!O!P!m!n!r#^#h#i$Q$d$h$x%R%W%Z%d%{&Y&Z&^&d&p'P'R'['_#tYOTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^R!pi#wXOTVbghijknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^T!]X!^#tZOTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^R!qiX|PY!o!pW{PY!o!pQ#_|Q%i$kR&w&aW{PY!o!pR#_|!_!XW!O!P!m!n!r#^#e#f#g#h#i$Q$d$h$x%R%W%Z%d%{&Y&Z&^&d&p'P'R'['_W$f#i$g$h%gS%t$x%uT'V'P'WQ&t&^R'^'[R&v&_!j^Obknpsu!t!y#O#Q#S#W#z#}$Y$|%Q%V%X%y%|%}&Q&R&S&h&i&j&k&l&n&y&{'O'TQ!YWQ!vlQ$R!wQ%h$kQ&f%vS&r&Z&aR'Y'RTeObS`ObW#Vu#Q#W$YT#Zw#[anObuw#Q#W#[$YQ!lfQ!|oQ#RrR$V!}!k_Obknpsu!t!y#O#Q#S#W#z#}$Y$|%Q%V%X%y%|%}&Q&R&S&h&i&j&k&l&n&y&{'O'T!g_Obknpsu!t!y#O#Q#S#W#z#}$Y$|%Q%V%X%y%|&Q&R&S&h&i&j&l&n&y&{'O'TS`ObX#Vu#Q#W$Y]pObu#Q#W$YTsObTuObTwObQbOR!_bQ!acR#n!aQ!dcQ#o!aW#s!d#o$r$uQ$r#uR$u#vQ!^XR#m!^Q$g#iS%f$g%gR%g$hQ'W'PR']'WQ%u$xR&e%uQ#WuQ$Y#QT$`#W$YQ!ynQ#OpQ#SsV$S!y#O#SQ!tkh$O!t$|%X%|&R&i&k&l&n&y&{'TQ$|#zQ%X#}Q%|%QQ&R%VQ&i%yQ&k%}Q&l&QQ&n&SQ&y&hQ&{&jR'T'OQ$}#zQ%w$|T%z$}%wQ%T#{R&O%TQ#[wR$b#[T!`c!aR$p#r#tROTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^Q#x!jQ$k#qQ${#yQ%]$UQ%a$[Q&W%^Q&[%jQ&]%kQ&a%oR'X'QQ$k#qQ${#yQ%]$UQ%a$[Q&W%^R&a%oQ$k#qR&a%oR&_%m!fWObknpsu!t!y#O#Q#S#W#z#}$Y$|%Q%V%X%y%|&Q&R&S&h&i&j&l&n&y&{'O'TQ!OTQ!PVQ!mgQ!nhQ!rjQ#^{Q#e!SQ#f!TQ#g!UQ#h!VQ#i!WQ$Q!uQ$d#_Q$h#jQ$x#wS%R#{%TQ%W#|Q%Z$PQ%d$fQ%{%OQ&Y%eQ&Z%iQ&^%mQ&d%tQ&p&TQ'P&tQ'R&wQ'['VR'_'^R#k!WT`ObR$y#wSaOb!Q!sk!t#z#}$|%Q%V%X%y%|%}&Q&R&S&h&i&j&k&l&n&y&{'O'T[!xnps!y#O#SX#Vu#Q#W$YT%S#{%T!k]Obknpsu!t!y#O#Q#S#W#z#}$Y$|%Q%V%X%y%|%}&Q&R&S&h&i&j&k&l&n&y&{'O'TR!}o",nodeNames:"⚠ LineComment MultiLineComment Pragma Program Declaration VarDeclaration Identifier DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword ModifierKeyword ModifierKeyword ModifierKeyword VariableDeclarationStatement ModifierKeyword NumericLiteral Punc TypeName TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword ControlKeyword TypeKeyword TypeKeyword Punc ControlKeyword ControlKeyword TypedNumericLiteral StringLiteral TypedStringLiteral DateTimeLiteral TypedDateTimeLiteral BooleanLiteral ParenthesizedExpression Punc Punc UnaryExpression Operator OperatorKeyword BinaryExpression Operator Operator OperatorKeyword LogicalOp OperatorKeyword OperatorKeyword OperatorKeyword OperatorKeyword OperatorKeyword CompareOp MemberExpression PropertyName Punc AssignmentExpression Operator Operator Operator OperatorKeyword CallExpression ArgList Punc Punc Punc ControlKeyword Punc DeclarationKeyword TypeDecl DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword MethodDeclaration MethDecl DeclarationKeyword CallName IfStatement ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword CaseStatement ControlKeyword ControlKeyword LoopStatement ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword KeywordStatement ControlKeyword ControlKeyword ControlKeyword JumpStatement ControlKeyword ExpressionStatement EmptyStatement DeclarationKeyword PropertyDeclaration PropDecl DeclarationKeyword DeclarationKeyword ModifierKeyword ModifierKeyword ModifierKeyword ModifierKeyword ModifierKeyword DeclarationKeyword DeclarationKeyword FuncDecl DeclarationKeyword DeclarationKeyword FbDecl DeclarationKeyword DeclarationKeyword DeclarationKeyword ItfDecl DeclarationKeyword DeclarationKeyword",maxTerm:230,nodeProps:[["group",-16,7,23,68,69,70,71,72,73,74,75,76,79,82,93,96,101,"Expression",-7,122,128,131,141,145,147,148,"Statement"]],propSources:[Se],skippedNodes:[0,1,2,3],repeatNodeCount:13,tokenData:"7m~R!QX^$Xpq$Xrs$|st%quv%vwx$|xy%{yz&xz{&}{|'S|}'X}!O'^!O!P'c!P!Q)R!Q!R)r!R!S*W!S!T+{!T!Y)r!Y!Z-O!Z![)r![!]-{!]!^.Y!^!_._!_!`.w!`!a.o!c!f/X!f!g/j!g!k/X!k!l1|!l!n/X!n!o2a!o!v/X!v!w3O!w!}/X!}#O6o#P#Q6t#Q#R6y#R#S/X#T#o/X#o#p7O#y#z$X$f$g$X#BY#BZ$X$IS$I_$X$I|$JO$X$JT$JU$X$KV$KW$X&FU&FV$X~$^Y%Q~X^$Xpq$X#y#z$X$f$g$X#BY#BZ$X$IS$I_$X$I|$JO$X$JT$JU$X$KV$KW$X&FU&FV$X~%PVOr$|rs%fsw$|wx%fx;'S$|;'S;=`%k<%lO$|~%kO!i~~%nP;=`<%l$|~%vO%_~~%{O%T~~&QP%`~z{&T~&WTOz&Tz{&g{;'S&T;'S;=`&r<%lO&T~&jPyz&m~&rOQ~~&uP;=`<%l&T~&}O%a~~'SO%e~~'XO%b~~'^O%l~~'cO%c~~'hQ%fP!O!P'n!Q!['{R'sP%mP!O!P'vQ'{O%kQ~(QSg~!Q!['{!g!h(^#R#S'{#X#Y(^~(aS{|(m}!O(m!Q![(v#R#S(v~(pQ!Q![(v#R#S(v~({Qg~!Q![(v#R#S(v~)WP%d~!P!Q)Z~)`SP~OY)ZZ;'S)Z;'S;=`)l<%lO)Z~)oP;=`<%l)Z~)wTg~!O!P'{!Q![)r!g!h(^#R#S)r#X#Y(^~*]Vg~!O!P'{!Q!W)r!W!X*r!X![)r!g!h(^#R#S)r#X#Y(^~*wUg~st+Z!O!P'{!Q![)r!g!h(^#R#S)r#X#Y(^~+^S!Q![+j!c!i+j#R#S+j#T#Z+j~+oSg~!Q![+j!c!i+j#R#S+j#T#Z+j~,QUg~st,d!O!P'{!Q![)r!g!h(^#R#S)r#X#Y(^~,gR!Q!R,p!R!S,p#R#S,p~,uRg~!Q!R,p!R!S,p#R#S,p~-TUg~st-g!O!P'{!Q![)r!g!h(^#R#S)r#X#Y(^~-jQ!Q!Y-p#R#S-p~-uQg~!Q!Y-p#R#S-p~.QP%V~!_!`.T~.YO%h~~._O%o~~.dQ#O~!_!`.j!`!a.o~.oO#O~~.tP#O~!_!`.j~.|Q#O~!_!`.j!`!a/S~/XO%i~R/^SVR!Q![/X!c!}/X#R#S/X#T#o/X~/oVVRst0U!Q![/X!c!v/X!v!w0p!w!}/X#R#S/X#T#o/X~0XR}!O0b!Q![0b#R#S0b~0gR!k~}!O0b!Q![0b#R#S0b~0uTVRst1U!Q![/X!c!}/X#R#S/X#T#o/X~1XT}!O1h!O!P1h!Q![1h![!]1h#R#S1h~1mT!k~}!O1h!O!P1h!Q![1h![!]1h#R#S1hV2TS%USVR!Q![/X!c!}/X#R#S/X#T#o/X~2fWVR!Q![/X!c!f/X!f!g/j!g!v/X!v!w3O!w!}/X#R#S/X#T#o/X~3TVVRst3j!Q![/X!c!q/X!q!r5Q!r!}/X#R#S/X#T#o/X~3mY!Q![4]!f!g4]!j!k4]!o!p4]!u!v4]#R#S4]#W#X4]#[#]4]#a#b4]#g#h4]~4bY!k~!Q![4]!f!g4]!j!k4]!o!p4]!u!v4]#R#S4]#W#X4]#[#]4]#a#b4]#g#h4]~5VUVR!Q![/X!c!f/X!f!g5i!g!}/X#R#S/X#T#o/X~5nTVRst5}!Q![/X!c!}/X#R#S/X#T#o/X~6QS!O!P6^!Q![6^![!]6^#R#S6^~6cS!k~!O!P6^!Q![6^![!]6^#R#S6^~6tO%[~~6yO%n~~7OO%g~~7RTO#q7O#q#r7b#r;'S7O;'S;=`7g<%lO7O~7gOR~~7jP;=`<%l7O",tokenizers:[0,1,2],topRules:{Program:[0,4]},specialized:[{term:7,get:o=>xe[o]||-1}],tokenPrec:4706}),Te=Vt([{tag:h.controlKeyword,class:"token keyword control-flow"},{tag:h.operatorKeyword,class:"token keyword"},{tag:h.definitionKeyword,class:"token keyword"},{tag:h.modifier,class:"token keyword"},{tag:h.typeName,class:"token class-name"},{tag:h.number,class:"token number"},{tag:h.bool,class:"token boolean"},{tag:h.string,class:"token string"},{tag:h.annotation,class:"token cdata"},{tag:h.operator,class:"token operator"},{tag:h.punctuation,class:"token punctuation"},{tag:h.separator,class:"token operator"},{tag:h.comment,class:"token comment"},{tag:h.name,class:"token variable"},{tag:h.function(h.name),class:"token function"},{tag:h.propertyName,class:"token property"}]);function je(o,t,e){let i="";return ue(o,t,e,(r,n)=>{n?i+=`<span class="${n}">${Lt(r)}</span>`:i+=Lt(r)},()=>{i+="<br/>"}),i}function Lt(o){return o.replace(/[&<>"']/g,t=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[t])}window.highlightCodeBlocks=function(){document.querySelectorAll("code.language-phioiecst").forEach(o=>{const t=o.textContent,e=be.parse(t),i=je(t,e,Te);o.innerHTML=i})},window.addEventListener("DOMContentLoaded",()=>{window.highlightCodeBlocks()})})();
+ */ ( function () {
+	'use strict';
+	let Mt = 0;
+	class yt {
+		constructor( t, e ) {
+			( this.from = t ), ( this.to = e );
+		}
+	}
+	class k {
+		constructor( t = {} ) {
+			( this.id = Mt++ ),
+				( this.perNode = !! t.perNode ),
+				( this.deserialize =
+					t.deserialize ||
+					( () => {
+						throw new Error(
+							"This node type doesn't define a deserialize function"
+						);
+					} ) );
+		}
+		add( t ) {
+			if ( this.perNode )
+				throw new RangeError(
+					"Can't add per-node props to node types"
+				);
+			return (
+				typeof t != 'function' && ( t = V.match( t ) ),
+				( e ) => {
+					let i = t( e );
+					return i === void 0 ? null : [ this, i ];
+				}
+			);
+		}
+	}
+	( k.closedBy = new k( { deserialize: ( o ) => o.split( ' ' ) } ) ),
+		( k.openedBy = new k( { deserialize: ( o ) => o.split( ' ' ) } ) ),
+		( k.group = new k( { deserialize: ( o ) => o.split( ' ' ) } ) ),
+		( k.isolate = new k( {
+			deserialize: ( o ) => {
+				if ( o && o != 'rtl' && o != 'ltr' && o != 'auto' )
+					throw new RangeError( 'Invalid value for isolate: ' + o );
+				return o || 'auto';
+			},
+		} ) ),
+		( k.contextHash = new k( { perNode: ! 0 } ) ),
+		( k.lookAhead = new k( { perNode: ! 0 } ) ),
+		( k.mounted = new k( { perNode: ! 0 } ) );
+	class ot {
+		constructor( t, e, i ) {
+			( this.tree = t ), ( this.overlay = e ), ( this.parser = i );
+		}
+		static get( t ) {
+			return t && t.props && t.props[ k.mounted.id ];
+		}
+	}
+	const Ht = Object.create( null );
+	class V {
+		constructor( t, e, i, r = 0 ) {
+			( this.name = t ),
+				( this.props = e ),
+				( this.id = i ),
+				( this.flags = r );
+		}
+		static define( t ) {
+			let e = t.props && t.props.length ? Object.create( null ) : Ht,
+				i =
+					( t.top ? 1 : 0 ) |
+					( t.skipped ? 2 : 0 ) |
+					( t.error ? 4 : 0 ) |
+					( t.name == null ? 8 : 0 ),
+				r = new V( t.name || '', e, t.id, i );
+			if ( t.props ) {
+				for ( let n of t.props )
+					if ( ( Array.isArray( n ) || ( n = n( r ) ), n ) ) {
+						if ( n[ 0 ].perNode )
+							throw new RangeError(
+								"Can't store a per-node prop on a node type"
+							);
+						e[ n[ 0 ].id ] = n[ 1 ];
+					}
+			}
+			return r;
+		}
+		prop( t ) {
+			return this.props[ t.id ];
+		}
+		get isTop() {
+			return ( this.flags & 1 ) > 0;
+		}
+		get isSkipped() {
+			return ( this.flags & 2 ) > 0;
+		}
+		get isError() {
+			return ( this.flags & 4 ) > 0;
+		}
+		get isAnonymous() {
+			return ( this.flags & 8 ) > 0;
+		}
+		is( t ) {
+			if ( typeof t == 'string' ) {
+				if ( this.name == t ) return ! 0;
+				let e = this.prop( k.group );
+				return e ? e.indexOf( t ) > -1 : ! 1;
+			}
+			return this.id == t;
+		}
+		static match( t ) {
+			let e = Object.create( null );
+			for ( let i in t ) for ( let r of i.split( ' ' ) ) e[ r ] = t[ i ];
+			return ( i ) => {
+				for (
+					let r = i.prop( k.group ), n = -1;
+					n < ( r ? r.length : 0 );
+					n++
+				) {
+					let s = e[ n < 0 ? i.name : r[ n ] ];
+					if ( s ) return s;
+				}
+			};
+		}
+	}
+	V.none = new V( '', Object.create( null ), 0, 8 );
+	class wt {
+		constructor( t ) {
+			this.types = t;
+			for ( let e = 0; e < t.length; e++ )
+				if ( t[ e ].id != e )
+					throw new RangeError(
+						'Node type ids should correspond to array positions when creating a node set'
+					);
+		}
+		extend( ...t ) {
+			let e = [];
+			for ( let i of this.types ) {
+				let r = null;
+				for ( let n of t ) {
+					let s = n( i );
+					s &&
+						( r || ( r = Object.assign( {}, i.props ) ),
+						( r[ s[ 0 ].id ] = s[ 1 ] ) );
+				}
+				e.push( r ? new V( i.name, r, i.id, i.flags ) : i );
+			}
+			return new wt( e );
+		}
+	}
+	const at = new WeakMap(),
+		Ct = new WeakMap();
+	var R;
+	( function ( o ) {
+		( o[ ( o.ExcludeBuffers = 1 ) ] = 'ExcludeBuffers' ),
+			( o[ ( o.IncludeAnonymous = 2 ) ] = 'IncludeAnonymous' ),
+			( o[ ( o.IgnoreMounts = 4 ) ] = 'IgnoreMounts' ),
+			( o[ ( o.IgnoreOverlays = 8 ) ] = 'IgnoreOverlays' );
+	} )( R || ( R = {} ) );
+	class C {
+		constructor( t, e, i, r, n ) {
+			if (
+				( ( this.type = t ),
+				( this.children = e ),
+				( this.positions = i ),
+				( this.length = r ),
+				( this.props = null ),
+				n && n.length )
+			) {
+				this.props = Object.create( null );
+				for ( let [ s, O ] of n )
+					this.props[ typeof s == 'number' ? s : s.id ] = O;
+			}
+		}
+		toString() {
+			let t = ot.get( this );
+			if ( t && ! t.overlay ) return t.tree.toString();
+			let e = '';
+			for ( let i of this.children ) {
+				let r = i.toString();
+				r && ( e && ( e += ',' ), ( e += r ) );
+			}
+			return this.type.name
+				? ( /\W/.test( this.type.name ) && ! this.type.isError
+						? JSON.stringify( this.type.name )
+						: this.type.name ) + ( e.length ? '(' + e + ')' : '' )
+				: e;
+		}
+		cursor( t = 0 ) {
+			return new bt( this.topNode, t );
+		}
+		cursorAt( t, e = 0, i = 0 ) {
+			let r = at.get( this ) || this.topNode,
+				n = new bt( r );
+			return n.moveTo( t, e ), at.set( this, n._tree ), n;
+		}
+		get topNode() {
+			return new X( this, 0, 0, null );
+		}
+		resolve( t, e = 0 ) {
+			let i = st( at.get( this ) || this.topNode, t, e, ! 1 );
+			return at.set( this, i ), i;
+		}
+		resolveInner( t, e = 0 ) {
+			let i = st( Ct.get( this ) || this.topNode, t, e, ! 0 );
+			return Ct.set( this, i ), i;
+		}
+		resolveStack( t, e = 0 ) {
+			return ee( this, t, e );
+		}
+		iterate( t ) {
+			let { enter: e, leave: i, from: r = 0, to: n = this.length } = t,
+				s = t.mode || 0,
+				O = ( s & R.IncludeAnonymous ) > 0;
+			for ( let a = this.cursor( s | R.IncludeAnonymous ); ;  ) {
+				let l = ! 1;
+				if (
+					a.from <= n &&
+					a.to >= r &&
+					( ( ! O && a.type.isAnonymous ) || e( a ) !== ! 1 )
+				) {
+					if ( a.firstChild() ) continue;
+					l = ! 0;
+				}
+				for (
+					;
+					l && i && ( O || ! a.type.isAnonymous ) && i( a ),
+						! a.nextSibling();
 
+				) {
+					if ( ! a.parent() ) return;
+					l = ! 0;
+				}
+			}
+		}
+		prop( t ) {
+			return t.perNode
+				? this.props
+					? this.props[ t.id ]
+					: void 0
+				: this.type.prop( t );
+		}
+		get propValues() {
+			let t = [];
+			if ( this.props )
+				for ( let e in this.props ) t.push( [ +e, this.props[ e ] ] );
+			return t;
+		}
+		balance( t = {} ) {
+			return this.children.length <= 8
+				? this
+				: jt(
+						V.none,
+						this.children,
+						this.positions,
+						0,
+						this.children.length,
+						0,
+						this.length,
+						( e, i, r ) =>
+							new C( this.type, e, i, r, this.propValues ),
+						t.makeTree ||
+							( ( e, i, r ) => new C( V.none, e, i, r ) )
+				  );
+		}
+		static build( t ) {
+			return ie( t );
+		}
+	}
+	C.empty = new C( V.none, [], [], 0 );
+	class St {
+		constructor( t, e ) {
+			( this.buffer = t ), ( this.index = e );
+		}
+		get id() {
+			return this.buffer[ this.index - 4 ];
+		}
+		get start() {
+			return this.buffer[ this.index - 3 ];
+		}
+		get end() {
+			return this.buffer[ this.index - 2 ];
+		}
+		get size() {
+			return this.buffer[ this.index - 1 ];
+		}
+		get pos() {
+			return this.index;
+		}
+		next() {
+			this.index -= 4;
+		}
+		fork() {
+			return new St( this.buffer, this.index );
+		}
+	}
+	class L {
+		constructor( t, e, i ) {
+			( this.buffer = t ), ( this.length = e ), ( this.set = i );
+		}
+		get type() {
+			return V.none;
+		}
+		toString() {
+			let t = [];
+			for ( let e = 0; e < this.buffer.length;  )
+				t.push( this.childString( e ) ), ( e = this.buffer[ e + 3 ] );
+			return t.join( ',' );
+		}
+		childString( t ) {
+			let e = this.buffer[ t ],
+				i = this.buffer[ t + 3 ],
+				r = this.set.types[ e ],
+				n = r.name;
+			if (
+				( /\W/.test( n ) && ! r.isError && ( n = JSON.stringify( n ) ),
+				( t += 4 ),
+				i == t )
+			)
+				return n;
+			let s = [];
+			for ( ; t < i;  )
+				s.push( this.childString( t ) ), ( t = this.buffer[ t + 3 ] );
+			return n + '(' + s.join( ',' ) + ')';
+		}
+		findChild( t, e, i, r, n ) {
+			let { buffer: s } = this,
+				O = -1;
+			for (
+				let a = t;
+				a != e &&
+				! (
+					vt( n, r, s[ a + 1 ], s[ a + 2 ] ) && ( ( O = a ), i > 0 )
+				);
+				a = s[ a + 3 ]
+			);
+			return O;
+		}
+		slice( t, e, i ) {
+			let r = this.buffer,
+				n = new Uint16Array( e - t ),
+				s = 0;
+			for ( let O = t, a = 0; O < e;  ) {
+				( n[ a++ ] = r[ O++ ] ), ( n[ a++ ] = r[ O++ ] - i );
+				let l = ( n[ a++ ] = r[ O++ ] - i );
+				( n[ a++ ] = r[ O++ ] - t ), ( s = Math.max( s, l ) );
+			}
+			return new L( n, s, this.set );
+		}
+	}
+	function vt( o, t, e, i ) {
+		switch ( o ) {
+			case -2:
+				return e < t;
+			case -1:
+				return i >= t && e < t;
+			case 0:
+				return e < t && i > t;
+			case 1:
+				return e <= t && i > t;
+			case 2:
+				return i > t;
+			case 4:
+				return ! 0;
+		}
+	}
+	function st( o, t, e, i ) {
+		for (
+			var r;
+			o.from == o.to ||
+			( e < 1 ? o.from >= t : o.from > t ) ||
+			( e > -1 ? o.to <= t : o.to < t );
+
+		) {
+			let s = ! i && o instanceof X && o.index < 0 ? null : o.parent;
+			if ( ! s ) return o;
+			o = s;
+		}
+		let n = i ? 0 : R.IgnoreOverlays;
+		if ( i )
+			for ( let s = o, O = s.parent; O; s = O, O = s.parent )
+				s instanceof X &&
+					s.index < 0 &&
+					( ( r = O.enter( t, e, n ) ) === null || r === void 0
+						? void 0
+						: r.from ) != s.from &&
+					( o = O );
+		for (;;) {
+			let s = o.enter( t, e, n );
+			if ( ! s ) return o;
+			o = s;
+		}
+	}
+	class Et {
+		cursor( t = 0 ) {
+			return new bt( this, t );
+		}
+		getChild( t, e = null, i = null ) {
+			let r = Xt( this, t, e, i );
+			return r.length ? r[ 0 ] : null;
+		}
+		getChildren( t, e = null, i = null ) {
+			return Xt( this, t, e, i );
+		}
+		resolve( t, e = 0 ) {
+			return st( this, t, e, ! 1 );
+		}
+		resolveInner( t, e = 0 ) {
+			return st( this, t, e, ! 0 );
+		}
+		matchContext( t ) {
+			return xt( this.parent, t );
+		}
+		enterUnfinishedNodesBefore( t ) {
+			let e = this.childBefore( t ),
+				i = this;
+			for ( ; e;  ) {
+				let r = e.lastChild;
+				if ( ! r || r.to != e.to ) break;
+				r.type.isError && r.from == r.to
+					? ( ( i = e ), ( e = r.prevSibling ) )
+					: ( e = r );
+			}
+			return i;
+		}
+		get node() {
+			return this;
+		}
+		get next() {
+			return this.parent;
+		}
+	}
+	class X extends Et {
+		constructor( t, e, i, r ) {
+			super(),
+				( this._tree = t ),
+				( this.from = e ),
+				( this.index = i ),
+				( this._parent = r );
+		}
+		get type() {
+			return this._tree.type;
+		}
+		get name() {
+			return this._tree.type.name;
+		}
+		get to() {
+			return this.from + this._tree.length;
+		}
+		nextChild( t, e, i, r, n = 0 ) {
+			for ( let s = this; ;  ) {
+				for (
+					let { children: O, positions: a } = s._tree,
+						l = e > 0 ? O.length : -1;
+					t != l;
+					t += e
+				) {
+					let c = O[ t ],
+						f = a[ t ] + s.from;
+					if ( vt( r, i, f, f + c.length ) ) {
+						if ( c instanceof L ) {
+							if ( n & R.ExcludeBuffers ) continue;
+							let d = c.findChild(
+								0,
+								c.buffer.length,
+								e,
+								i - f,
+								r
+							);
+							if ( d > -1 )
+								return new B( new Jt( s, c, t, f ), null, d );
+						} else if (
+							n & R.IncludeAnonymous ||
+							! c.type.isAnonymous ||
+							Tt( c )
+						) {
+							let d;
+							if (
+								! ( n & R.IgnoreMounts ) &&
+								( d = ot.get( c ) ) &&
+								! d.overlay
+							)
+								return new X( d.tree, f, t, s );
+							let p = new X( c, f, t, s );
+							return n & R.IncludeAnonymous ||
+								! p.type.isAnonymous
+								? p
+								: p.nextChild(
+										e < 0 ? c.children.length - 1 : 0,
+										e,
+										i,
+										r
+								  );
+						}
+					}
+				}
+				if (
+					n & R.IncludeAnonymous ||
+					! s.type.isAnonymous ||
+					( s.index >= 0
+						? ( t = s.index + e )
+						: ( t = e < 0 ? -1 : s._parent._tree.children.length ),
+					( s = s._parent ),
+					! s )
+				)
+					return null;
+			}
+		}
+		get firstChild() {
+			return this.nextChild( 0, 1, 0, 4 );
+		}
+		get lastChild() {
+			return this.nextChild( this._tree.children.length - 1, -1, 0, 4 );
+		}
+		childAfter( t ) {
+			return this.nextChild( 0, 1, t, 2 );
+		}
+		childBefore( t ) {
+			return this.nextChild( this._tree.children.length - 1, -1, t, -2 );
+		}
+		enter( t, e, i = 0 ) {
+			let r;
+			if (
+				! ( i & R.IgnoreOverlays ) &&
+				( r = ot.get( this._tree ) ) &&
+				r.overlay
+			) {
+				let n = t - this.from;
+				for ( let { from: s, to: O } of r.overlay )
+					if (
+						( e > 0 ? s <= n : s < n ) &&
+						( e < 0 ? O >= n : O > n )
+					)
+						return new X(
+							r.tree,
+							r.overlay[ 0 ].from + this.from,
+							-1,
+							this
+						);
+			}
+			return this.nextChild( 0, 1, t, e, i );
+		}
+		nextSignificantParent() {
+			let t = this;
+			for ( ; t.type.isAnonymous && t._parent;  ) t = t._parent;
+			return t;
+		}
+		get parent() {
+			return this._parent ? this._parent.nextSignificantParent() : null;
+		}
+		get nextSibling() {
+			return this._parent && this.index >= 0
+				? this._parent.nextChild( this.index + 1, 1, 0, 4 )
+				: null;
+		}
+		get prevSibling() {
+			return this._parent && this.index >= 0
+				? this._parent.nextChild( this.index - 1, -1, 0, 4 )
+				: null;
+		}
+		get tree() {
+			return this._tree;
+		}
+		toTree() {
+			return this._tree;
+		}
+		toString() {
+			return this._tree.toString();
+		}
+	}
+	function Xt( o, t, e, i ) {
+		let r = o.cursor(),
+			n = [];
+		if ( ! r.firstChild() ) return n;
+		if ( e != null ) {
+			for ( let s = ! 1; ! s;  )
+				if ( ( ( s = r.type.is( e ) ), ! r.nextSibling() ) ) return n;
+		}
+		for (;;) {
+			if ( i != null && r.type.is( i ) ) return n;
+			if ( ( r.type.is( t ) && n.push( r.node ), ! r.nextSibling() ) )
+				return i == null ? n : [];
+		}
+	}
+	function xt( o, t, e = t.length - 1 ) {
+		for ( let i = o; e >= 0; i = i.parent ) {
+			if ( ! i ) return ! 1;
+			if ( ! i.type.isAnonymous ) {
+				if ( t[ e ] && t[ e ] != i.name ) return ! 1;
+				e--;
+			}
+		}
+		return ! 0;
+	}
+	class Jt {
+		constructor( t, e, i, r ) {
+			( this.parent = t ),
+				( this.buffer = e ),
+				( this.index = i ),
+				( this.start = r );
+		}
+	}
+	class B extends Et {
+		get name() {
+			return this.type.name;
+		}
+		get from() {
+			return (
+				this.context.start +
+				this.context.buffer.buffer[ this.index + 1 ]
+			);
+		}
+		get to() {
+			return (
+				this.context.start +
+				this.context.buffer.buffer[ this.index + 2 ]
+			);
+		}
+		constructor( t, e, i ) {
+			super(),
+				( this.context = t ),
+				( this._parent = e ),
+				( this.index = i ),
+				( this.type = t.buffer.set.types[ t.buffer.buffer[ i ] ] );
+		}
+		child( t, e, i ) {
+			let { buffer: r } = this.context,
+				n = r.findChild(
+					this.index + 4,
+					r.buffer[ this.index + 3 ],
+					t,
+					e - this.context.start,
+					i
+				);
+			return n < 0 ? null : new B( this.context, this, n );
+		}
+		get firstChild() {
+			return this.child( 1, 0, 4 );
+		}
+		get lastChild() {
+			return this.child( -1, 0, 4 );
+		}
+		childAfter( t ) {
+			return this.child( 1, t, 2 );
+		}
+		childBefore( t ) {
+			return this.child( -1, t, -2 );
+		}
+		enter( t, e, i = 0 ) {
+			if ( i & R.ExcludeBuffers ) return null;
+			let { buffer: r } = this.context,
+				n = r.findChild(
+					this.index + 4,
+					r.buffer[ this.index + 3 ],
+					e > 0 ? 1 : -1,
+					t - this.context.start,
+					e
+				);
+			return n < 0 ? null : new B( this.context, this, n );
+		}
+		get parent() {
+			return this._parent || this.context.parent.nextSignificantParent();
+		}
+		externalSibling( t ) {
+			return this._parent
+				? null
+				: this.context.parent.nextChild(
+						this.context.index + t,
+						t,
+						0,
+						4
+				  );
+		}
+		get nextSibling() {
+			let { buffer: t } = this.context,
+				e = t.buffer[ this.index + 3 ];
+			return e <
+				( this._parent
+					? t.buffer[ this._parent.index + 3 ]
+					: t.buffer.length )
+				? new B( this.context, this._parent, e )
+				: this.externalSibling( 1 );
+		}
+		get prevSibling() {
+			let { buffer: t } = this.context,
+				e = this._parent ? this._parent.index + 4 : 0;
+			return this.index == e
+				? this.externalSibling( -1 )
+				: new B(
+						this.context,
+						this._parent,
+						t.findChild( e, this.index, -1, 0, 4 )
+				  );
+		}
+		get tree() {
+			return null;
+		}
+		toTree() {
+			let t = [],
+				e = [],
+				{ buffer: i } = this.context,
+				r = this.index + 4,
+				n = i.buffer[ this.index + 3 ];
+			if ( n > r ) {
+				let s = i.buffer[ this.index + 1 ];
+				t.push( i.slice( r, n, s ) ), e.push( 0 );
+			}
+			return new C( this.type, t, e, this.to - this.from );
+		}
+		toString() {
+			return this.context.buffer.childString( this.index );
+		}
+	}
+	function _t( o ) {
+		if ( ! o.length ) return null;
+		let t = 0,
+			e = o[ 0 ];
+		for ( let n = 1; n < o.length; n++ ) {
+			let s = o[ n ];
+			( s.from > e.from || s.to < e.to ) && ( ( e = s ), ( t = n ) );
+		}
+		let i = e instanceof X && e.index < 0 ? null : e.parent,
+			r = o.slice();
+		return i ? ( r[ t ] = i ) : r.splice( t, 1 ), new te( r, e );
+	}
+	class te {
+		constructor( t, e ) {
+			( this.heads = t ), ( this.node = e );
+		}
+		get next() {
+			return _t( this.heads );
+		}
+	}
+	function ee( o, t, e ) {
+		let i = o.resolveInner( t, e ),
+			r = null;
+		for ( let n = i instanceof X ? i : i.context.parent; n; n = n.parent )
+			if ( n.index < 0 ) {
+				let s = n.parent;
+				( r || ( r = [ i ] ) ).push( s.resolve( t, e ) ), ( n = s );
+			} else {
+				let s = ot.get( n.tree );
+				if (
+					s &&
+					s.overlay &&
+					s.overlay[ 0 ].from <= t &&
+					s.overlay[ s.overlay.length - 1 ].to >= t
+				) {
+					let O = new X(
+						s.tree,
+						s.overlay[ 0 ].from + n.from,
+						-1,
+						n
+					);
+					( r || ( r = [ i ] ) ).push( st( O, t, e, ! 1 ) );
+				}
+			}
+		return r ? _t( r ) : i;
+	}
+	class bt {
+		get name() {
+			return this.type.name;
+		}
+		constructor( t, e = 0 ) {
+			if (
+				( ( this.mode = e ),
+				( this.buffer = null ),
+				( this.stack = [] ),
+				( this.index = 0 ),
+				( this.bufferNode = null ),
+				t instanceof X )
+			)
+				this.yieldNode( t );
+			else {
+				( this._tree = t.context.parent ), ( this.buffer = t.context );
+				for ( let i = t._parent; i; i = i._parent )
+					this.stack.unshift( i.index );
+				( this.bufferNode = t ), this.yieldBuf( t.index );
+			}
+		}
+		yieldNode( t ) {
+			return t
+				? ( ( this._tree = t ),
+				  ( this.type = t.type ),
+				  ( this.from = t.from ),
+				  ( this.to = t.to ),
+				  ! 0 )
+				: ! 1;
+		}
+		yieldBuf( t, e ) {
+			this.index = t;
+			let { start: i, buffer: r } = this.buffer;
+			return (
+				( this.type = e || r.set.types[ r.buffer[ t ] ] ),
+				( this.from = i + r.buffer[ t + 1 ] ),
+				( this.to = i + r.buffer[ t + 2 ] ),
+				! 0
+			);
+		}
+		yield( t ) {
+			return t
+				? t instanceof X
+					? ( ( this.buffer = null ), this.yieldNode( t ) )
+					: ( ( this.buffer = t.context ),
+					  this.yieldBuf( t.index, t.type ) )
+				: ! 1;
+		}
+		toString() {
+			return this.buffer
+				? this.buffer.buffer.childString( this.index )
+				: this._tree.toString();
+		}
+		enterChild( t, e, i ) {
+			if ( ! this.buffer )
+				return this.yield(
+					this._tree.nextChild(
+						t < 0 ? this._tree._tree.children.length - 1 : 0,
+						t,
+						e,
+						i,
+						this.mode
+					)
+				);
+			let { buffer: r } = this.buffer,
+				n = r.findChild(
+					this.index + 4,
+					r.buffer[ this.index + 3 ],
+					t,
+					e - this.buffer.start,
+					i
+				);
+			return n < 0
+				? ! 1
+				: ( this.stack.push( this.index ), this.yieldBuf( n ) );
+		}
+		firstChild() {
+			return this.enterChild( 1, 0, 4 );
+		}
+		lastChild() {
+			return this.enterChild( -1, 0, 4 );
+		}
+		childAfter( t ) {
+			return this.enterChild( 1, t, 2 );
+		}
+		childBefore( t ) {
+			return this.enterChild( -1, t, -2 );
+		}
+		enter( t, e, i = this.mode ) {
+			return this.buffer
+				? i & R.ExcludeBuffers
+					? ! 1
+					: this.enterChild( 1, t, e )
+				: this.yield( this._tree.enter( t, e, i ) );
+		}
+		parent() {
+			if ( ! this.buffer )
+				return this.yieldNode(
+					this.mode & R.IncludeAnonymous
+						? this._tree._parent
+						: this._tree.parent
+				);
+			if ( this.stack.length ) return this.yieldBuf( this.stack.pop() );
+			let t =
+				this.mode & R.IncludeAnonymous
+					? this.buffer.parent
+					: this.buffer.parent.nextSignificantParent();
+			return ( this.buffer = null ), this.yieldNode( t );
+		}
+		sibling( t ) {
+			if ( ! this.buffer )
+				return this._tree._parent
+					? this.yield(
+							this._tree.index < 0
+								? null
+								: this._tree._parent.nextChild(
+										this._tree.index + t,
+										t,
+										0,
+										4,
+										this.mode
+								  )
+					  )
+					: ! 1;
+			let { buffer: e } = this.buffer,
+				i = this.stack.length - 1;
+			if ( t < 0 ) {
+				let r = i < 0 ? 0 : this.stack[ i ] + 4;
+				if ( this.index != r )
+					return this.yieldBuf(
+						e.findChild( r, this.index, -1, 0, 4 )
+					);
+			} else {
+				let r = e.buffer[ this.index + 3 ];
+				if (
+					r <
+					( i < 0
+						? e.buffer.length
+						: e.buffer[ this.stack[ i ] + 3 ] )
+				)
+					return this.yieldBuf( r );
+			}
+			return i < 0
+				? this.yield(
+						this.buffer.parent.nextChild(
+							this.buffer.index + t,
+							t,
+							0,
+							4,
+							this.mode
+						)
+				  )
+				: ! 1;
+		}
+		nextSibling() {
+			return this.sibling( 1 );
+		}
+		prevSibling() {
+			return this.sibling( -1 );
+		}
+		atLastNode( t ) {
+			let e,
+				i,
+				{ buffer: r } = this;
+			if ( r ) {
+				if ( t > 0 ) {
+					if ( this.index < r.buffer.buffer.length ) return ! 1;
+				} else
+					for ( let n = 0; n < this.index; n++ )
+						if ( r.buffer.buffer[ n + 3 ] < this.index ) return ! 1;
+				( { index: e, parent: i } = r );
+			} else ( { index: e, _parent: i } = this._tree );
+			for ( ; i; { index: e, _parent: i } = i )
+				if ( e > -1 )
+					for (
+						let n = e + t, s = t < 0 ? -1 : i._tree.children.length;
+						n != s;
+						n += t
+					) {
+						let O = i._tree.children[ n ];
+						if (
+							this.mode & R.IncludeAnonymous ||
+							O instanceof L ||
+							! O.type.isAnonymous ||
+							Tt( O )
+						)
+							return ! 1;
+					}
+			return ! 0;
+		}
+		move( t, e ) {
+			if ( e && this.enterChild( t, 0, 4 ) ) return ! 0;
+			for (;;) {
+				if ( this.sibling( t ) ) return ! 0;
+				if ( this.atLastNode( t ) || ! this.parent() ) return ! 1;
+			}
+		}
+		next( t = ! 0 ) {
+			return this.move( 1, t );
+		}
+		prev( t = ! 0 ) {
+			return this.move( -1, t );
+		}
+		moveTo( t, e = 0 ) {
+			for (
+				;
+				( this.from == this.to ||
+					( e < 1 ? this.from >= t : this.from > t ) ||
+					( e > -1 ? this.to <= t : this.to < t ) ) &&
+				this.parent();
+
+			);
+			for ( ; this.enterChild( 1, t, e );  );
+			return this;
+		}
+		get node() {
+			if ( ! this.buffer ) return this._tree;
+			let t = this.bufferNode,
+				e = null,
+				i = 0;
+			if ( t && t.context == this.buffer )
+				t: for ( let r = this.index, n = this.stack.length; n >= 0;  ) {
+					for ( let s = t; s; s = s._parent )
+						if ( s.index == r ) {
+							if ( r == this.index ) return s;
+							( e = s ), ( i = n + 1 );
+							break t;
+						}
+					r = this.stack[ --n ];
+				}
+			for ( let r = i; r < this.stack.length; r++ )
+				e = new B( this.buffer, e, this.stack[ r ] );
+			return ( this.bufferNode = new B( this.buffer, e, this.index ) );
+		}
+		get tree() {
+			return this.buffer ? null : this._tree._tree;
+		}
+		iterate( t, e ) {
+			for ( let i = 0; ;  ) {
+				let r = ! 1;
+				if ( this.type.isAnonymous || t( this ) !== ! 1 ) {
+					if ( this.firstChild() ) {
+						i++;
+						continue;
+					}
+					this.type.isAnonymous || ( r = ! 0 );
+				}
+				for (;;) {
+					if (
+						( r && e && e( this ),
+						( r = this.type.isAnonymous ),
+						! i )
+					)
+						return;
+					if ( this.nextSibling() ) break;
+					this.parent(), i--, ( r = ! 0 );
+				}
+			}
+		}
+		matchContext( t ) {
+			if ( ! this.buffer ) return xt( this.node.parent, t );
+			let { buffer: e } = this.buffer,
+				{ types: i } = e.set;
+			for (
+				let r = t.length - 1, n = this.stack.length - 1;
+				r >= 0;
+				n--
+			) {
+				if ( n < 0 ) return xt( this._tree, t, r );
+				let s = i[ e.buffer[ this.stack[ n ] ] ];
+				if ( ! s.isAnonymous ) {
+					if ( t[ r ] && t[ r ] != s.name ) return ! 1;
+					r--;
+				}
+			}
+			return ! 0;
+		}
+	}
+	function Tt( o ) {
+		return o.children.some(
+			( t ) => t instanceof L || ! t.type.isAnonymous || Tt( t )
+		);
+	}
+	function ie( o ) {
+		var t;
+		let {
+				buffer: e,
+				nodeSet: i,
+				maxBufferLength: r = 1024,
+				reused: n = [],
+				minRepeatType: s = i.types.length,
+			} = o,
+			O = Array.isArray( e ) ? new St( e, e.length ) : e,
+			a = i.types,
+			l = 0,
+			c = 0;
+		function f( m, S, g, b, y, T ) {
+			let { id: P, start: Q, end: w, size: x } = O,
+				N = c,
+				H = l;
+			for ( ; x < 0;  )
+				if ( ( O.next(), x == -1 ) ) {
+					let Z = n[ P ];
+					g.push( Z ), b.push( Q - m );
+					return;
+				} else if ( x == -3 ) {
+					l = P;
+					return;
+				} else if ( x == -4 ) {
+					c = P;
+					return;
+				} else
+					throw new RangeError( `Unrecognized record size: ${ x }` );
+			let Ot = a[ P ],
+				mt,
+				tt,
+				Bt = Q - m;
+			if ( w - Q <= r && ( tt = W( O.pos - S, y ) ) ) {
+				let Z = new Uint16Array( tt.size - tt.skip ),
+					D = O.pos - tt.size,
+					I = Z.length;
+				for ( ; O.pos > D;  ) I = q( tt.start, Z, I );
+				( mt = new L( Z, w - tt.start, i ) ), ( Bt = tt.start - m );
+			} else {
+				let Z = O.pos - x;
+				O.next();
+				let D = [],
+					I = [],
+					et = P >= s ? P : -1,
+					rt = 0,
+					kt = w;
+				for ( ; O.pos > Z;  )
+					et >= 0 && O.id == et && O.size >= 0
+						? ( O.end <= kt - r &&
+								( $( D, I, Q, rt, O.end, kt, et, N, H ),
+								( rt = D.length ),
+								( kt = O.end ) ),
+						  O.next() )
+						: T > 2500
+						? d( Q, Z, D, I )
+						: f( Q, Z, D, I, et, T + 1 );
+				if (
+					( et >= 0 &&
+						rt > 0 &&
+						rt < D.length &&
+						$( D, I, Q, rt, Q, kt, et, N, H ),
+					D.reverse(),
+					I.reverse(),
+					et > -1 && rt > 0 )
+				) {
+					let Ft = p( Ot, H );
+					mt = jt( Ot, D, I, 0, D.length, 0, w - Q, Ft, Ft );
+				} else mt = A( Ot, D, I, w - Q, N - w, H );
+			}
+			g.push( mt ), b.push( Bt );
+		}
+		function d( m, S, g, b ) {
+			let y = [],
+				T = 0,
+				P = -1;
+			for ( ; O.pos > S;  ) {
+				let { id: Q, start: w, end: x, size: N } = O;
+				if ( N > 4 ) O.next();
+				else {
+					if ( P > -1 && w < P ) break;
+					P < 0 && ( P = x - r ), y.push( Q, w, x ), T++, O.next();
+				}
+			}
+			if ( T ) {
+				let Q = new Uint16Array( T * 4 ),
+					w = y[ y.length - 2 ];
+				for ( let x = y.length - 3, N = 0; x >= 0; x -= 3 )
+					( Q[ N++ ] = y[ x ] ),
+						( Q[ N++ ] = y[ x + 1 ] - w ),
+						( Q[ N++ ] = y[ x + 2 ] - w ),
+						( Q[ N++ ] = N );
+				g.push( new L( Q, y[ 2 ] - w, i ) ), b.push( w - m );
+			}
+		}
+		function p( m, S ) {
+			return ( g, b, y ) => {
+				let T = 0,
+					P = g.length - 1,
+					Q,
+					w;
+				if ( P >= 0 && ( Q = g[ P ] ) instanceof C ) {
+					if ( ! P && Q.type == m && Q.length == y ) return Q;
+					( w = Q.prop( k.lookAhead ) ) &&
+						( T = b[ P ] + Q.length + w );
+				}
+				return A( m, g, b, y, T, S );
+			};
+		}
+		function $( m, S, g, b, y, T, P, Q, w ) {
+			let x = [],
+				N = [];
+			for ( ; m.length > b;  )
+				x.push( m.pop() ), N.push( S.pop() + g - y );
+			m.push( A( i.types[ P ], x, N, T - y, Q - T, w ) ), S.push( y - g );
+		}
+		function A( m, S, g, b, y, T, P ) {
+			if ( T ) {
+				let Q = [ k.contextHash, T ];
+				P = P ? [ Q ].concat( P ) : [ Q ];
+			}
+			if ( y > 25 ) {
+				let Q = [ k.lookAhead, y ];
+				P = P ? [ Q ].concat( P ) : [ Q ];
+			}
+			return new C( m, S, g, b, P );
+		}
+		function W( m, S ) {
+			let g = O.fork(),
+				b = 0,
+				y = 0,
+				T = 0,
+				P = g.end - r,
+				Q = { size: 0, start: 0, skip: 0 };
+			t: for ( let w = g.pos - m; g.pos > w;  ) {
+				let x = g.size;
+				if ( g.id == S && x >= 0 ) {
+					( Q.size = b ),
+						( Q.start = y ),
+						( Q.skip = T ),
+						( T += 4 ),
+						( b += 4 ),
+						g.next();
+					continue;
+				}
+				let N = g.pos - x;
+				if ( x < 0 || N < w || g.start < P ) break;
+				let H = g.id >= s ? 4 : 0,
+					Ot = g.start;
+				for ( g.next(); g.pos > N;  ) {
+					if ( g.size < 0 )
+						if ( g.size == -3 ) H += 4;
+						else break t;
+					else g.id >= s && ( H += 4 );
+					g.next();
+				}
+				( y = Ot ), ( b += x ), ( T += H );
+			}
+			return (
+				( S < 0 || b == m ) &&
+					( ( Q.size = b ), ( Q.start = y ), ( Q.skip = T ) ),
+				Q.size > 4 ? Q : void 0
+			);
+		}
+		function q( m, S, g ) {
+			let { id: b, start: y, end: T, size: P } = O;
+			if ( ( O.next(), P >= 0 && b < s ) ) {
+				let Q = g;
+				if ( P > 4 ) {
+					let w = O.pos - ( P - 4 );
+					for ( ; O.pos > w;  ) g = q( m, S, g );
+				}
+				( S[ --g ] = Q ),
+					( S[ --g ] = T - m ),
+					( S[ --g ] = y - m ),
+					( S[ --g ] = b );
+			} else P == -3 ? ( l = b ) : P == -4 && ( c = b );
+			return g;
+		}
+		let E = [],
+			j = [];
+		for ( ; O.pos > 0;  )
+			f( o.start || 0, o.bufferStart || 0, E, j, -1, 0 );
+		let U =
+			( t = o.length ) !== null && t !== void 0
+				? t
+				: E.length
+				? j[ 0 ] + E[ 0 ].length
+				: 0;
+		return new C( a[ o.topID ], E.reverse(), j.reverse(), U );
+	}
+	const Wt = new WeakMap();
+	function lt( o, t ) {
+		if ( ! o.isAnonymous || t instanceof L || t.type != o ) return 1;
+		let e = Wt.get( t );
+		if ( e == null ) {
+			e = 1;
+			for ( let i of t.children ) {
+				if ( i.type != o || ! ( i instanceof C ) ) {
+					e = 1;
+					break;
+				}
+				e += lt( o, i );
+			}
+			Wt.set( t, e );
+		}
+		return e;
+	}
+	function jt( o, t, e, i, r, n, s, O, a ) {
+		let l = 0;
+		for ( let $ = i; $ < r; $++ ) l += lt( o, t[ $ ] );
+		let c = Math.ceil( ( l * 1.5 ) / 8 ),
+			f = [],
+			d = [];
+		function p( $, A, W, q, E ) {
+			for ( let j = W; j < q;  ) {
+				let U = j,
+					m = A[ j ],
+					S = lt( o, $[ j ] );
+				for ( j++; j < q; j++ ) {
+					let g = lt( o, $[ j ] );
+					if ( S + g >= c ) break;
+					S += g;
+				}
+				if ( j == U + 1 ) {
+					if ( S > c ) {
+						let g = $[ U ];
+						p(
+							g.children,
+							g.positions,
+							0,
+							g.children.length,
+							A[ U ] + E
+						);
+						continue;
+					}
+					f.push( $[ U ] );
+				} else {
+					let g = A[ j - 1 ] + $[ j - 1 ].length - m;
+					f.push( jt( o, $, A, U, j, m, g, null, a ) );
+				}
+				d.push( m + E - n );
+			}
+		}
+		return p( t, e, i, r, 0 ), ( O || a )( f, d, s );
+	}
+	class re {
+		startParse( t, e, i ) {
+			return (
+				typeof t == 'string' && ( t = new se( t ) ),
+				( i = i
+					? i.length
+						? i.map( ( r ) => new yt( r.from, r.to ) )
+						: [ new yt( 0, 0 ) ]
+					: [ new yt( 0, t.length ) ] ),
+				this.createParse( t, e || [], i )
+			);
+		}
+		parse( t, e, i ) {
+			let r = this.startParse( t, e, i );
+			for (;;) {
+				let n = r.advance();
+				if ( n ) return n;
+			}
+		}
+	}
+	class se {
+		constructor( t ) {
+			this.string = t;
+		}
+		get length() {
+			return this.string.length;
+		}
+		chunk( t ) {
+			return this.string.slice( t );
+		}
+		get lineChunks() {
+			return ! 1;
+		}
+		read( t, e ) {
+			return this.string.slice( t, e );
+		}
+	}
+	new k( { perNode: ! 0 } );
+	let ne = 0;
+	class _ {
+		constructor( t, e, i, r ) {
+			( this.name = t ),
+				( this.set = e ),
+				( this.base = i ),
+				( this.modified = r ),
+				( this.id = ne++ );
+		}
+		toString() {
+			let { name: t } = this;
+			for ( let e of this.modified )
+				e.name && ( t = `${ e.name }(${ t })` );
+			return t;
+		}
+		static define( t, e ) {
+			let i = typeof t == 'string' ? t : '?';
+			if ( ( t instanceof _ && ( e = t ), e != null && e.base ) )
+				throw new Error( 'Can not derive from a modified tag' );
+			let r = new _( i, [], null, [] );
+			if ( ( r.set.push( r ), e ) )
+				for ( let n of e.set ) r.set.push( n );
+			return r;
+		}
+		static defineModifier( t ) {
+			let e = new ht( t );
+			return ( i ) =>
+				i.modified.indexOf( e ) > -1
+					? i
+					: ht.get(
+							i.base || i,
+							i.modified
+								.concat( e )
+								.sort( ( r, n ) => r.id - n.id )
+					  );
+		}
+	}
+	let Oe = 0;
+	class ht {
+		constructor( t ) {
+			( this.name = t ), ( this.instances = [] ), ( this.id = Oe++ );
+		}
+		static get( t, e ) {
+			if ( ! e.length ) return t;
+			let i = e[ 0 ].instances.find(
+				( O ) => O.base == t && oe( e, O.modified )
+			);
+			if ( i ) return i;
+			let r = [],
+				n = new _( t.name, r, t, e );
+			for ( let O of e ) O.instances.push( n );
+			let s = ae( e );
+			for ( let O of t.set )
+				if ( ! O.modified.length )
+					for ( let a of s ) r.push( ht.get( O, a ) );
+			return n;
+		}
+	}
+	function oe( o, t ) {
+		return o.length == t.length && o.every( ( e, i ) => e == t[ i ] );
+	}
+	function ae( o ) {
+		let t = [ [] ];
+		for ( let e = 0; e < o.length; e++ )
+			for ( let i = 0, r = t.length; i < r; i++ )
+				t.push( t[ i ].concat( o[ e ] ) );
+		return t.sort( ( e, i ) => i.length - e.length );
+	}
+	function le( o ) {
+		let t = Object.create( null );
+		for ( let e in o ) {
+			let i = o[ e ];
+			Array.isArray( i ) || ( i = [ i ] );
+			for ( let r of e.split( ' ' ) )
+				if ( r ) {
+					let n = [],
+						s = 2,
+						O = r;
+					for ( let f = 0; ;  ) {
+						if ( O == '...' && f > 0 && f + 3 == r.length ) {
+							s = 1;
+							break;
+						}
+						let d = /^"(?:[^"\\]|\\.)*?"|[^\/!]+/.exec( O );
+						if ( ! d ) throw new RangeError( 'Invalid path: ' + r );
+						if (
+							( n.push(
+								d[ 0 ] == '*'
+									? ''
+									: d[ 0 ][ 0 ] == '"'
+									? JSON.parse( d[ 0 ] )
+									: d[ 0 ]
+							),
+							( f += d[ 0 ].length ),
+							f == r.length )
+						)
+							break;
+						let p = r[ f++ ];
+						if ( f == r.length && p == '!' ) {
+							s = 0;
+							break;
+						}
+						if ( p != '/' )
+							throw new RangeError( 'Invalid path: ' + r );
+						O = r.slice( f );
+					}
+					let a = n.length - 1,
+						l = n[ a ];
+					if ( ! l ) throw new RangeError( 'Invalid path: ' + r );
+					let c = new ft( i, s, a > 0 ? n.slice( 0, a ) : null );
+					t[ l ] = c.sort( t[ l ] );
+				}
+		}
+		return Dt.add( t );
+	}
+	const Dt = new k();
+	class ft {
+		constructor( t, e, i, r ) {
+			( this.tags = t ),
+				( this.mode = e ),
+				( this.context = i ),
+				( this.next = r );
+		}
+		get opaque() {
+			return this.mode == 0;
+		}
+		get inherit() {
+			return this.mode == 1;
+		}
+		sort( t ) {
+			return ! t || t.depth < this.depth
+				? ( ( this.next = t ), this )
+				: ( ( t.next = this.sort( t.next ) ), t );
+		}
+		get depth() {
+			return this.context ? this.context.length : 0;
+		}
+	}
+	ft.empty = new ft( [], 2, null );
+	function Vt( o, t ) {
+		let e = Object.create( null );
+		for ( let n of o )
+			if ( ! Array.isArray( n.tag ) ) e[ n.tag.id ] = n.class;
+			else for ( let s of n.tag ) e[ s.id ] = n.class;
+		let { scope: i, all: r = null } = {};
+		return {
+			style: ( n ) => {
+				let s = r;
+				for ( let O of n )
+					for ( let a of O.set ) {
+						let l = e[ a.id ];
+						if ( l ) {
+							s = s ? s + ' ' + l : l;
+							break;
+						}
+					}
+				return s;
+			},
+			scope: i,
+		};
+	}
+	function he( o, t ) {
+		let e = null;
+		for ( let i of o ) {
+			let r = i.style( t );
+			r && ( e = e ? e + ' ' + r : r );
+		}
+		return e;
+	}
+	function fe( o, t, e, i = 0, r = o.length ) {
+		let n = new ce( i, Array.isArray( t ) ? t : [ t ], e );
+		n.highlightRange( o.cursor(), i, r, '', n.highlighters ), n.flush( r );
+	}
+	function ue( o, t, e, i, r, n = 0, s = o.length ) {
+		let O = n;
+		function a( l, c ) {
+			if ( ! ( l <= O ) ) {
+				for ( let f = o.slice( O, l ), d = 0; ;  ) {
+					let p = f.indexOf(
+							`
+`,
+							d
+						),
+						$ = p < 0 ? f.length : p;
+					if ( ( $ > d && i( f.slice( d, $ ), c ), p < 0 ) ) break;
+					r(), ( d = p + 1 );
+				}
+				O = l;
+			}
+		}
+		fe(
+			t,
+			e,
+			( l, c, f ) => {
+				a( l, '' ), a( c, f );
+			},
+			n,
+			s
+		),
+			a( s, '' );
+	}
+	class ce {
+		constructor( t, e, i ) {
+			( this.at = t ),
+				( this.highlighters = e ),
+				( this.span = i ),
+				( this.class = '' );
+		}
+		startSpan( t, e ) {
+			e != this.class &&
+				( this.flush( t ),
+				t > this.at && ( this.at = t ),
+				( this.class = e ) );
+		}
+		flush( t ) {
+			t > this.at && this.class && this.span( this.at, t, this.class );
+		}
+		highlightRange( t, e, i, r, n ) {
+			let { type: s, from: O, to: a } = t;
+			if ( O >= i || a <= e ) return;
+			s.isTop &&
+				( n = this.highlighters.filter(
+					( p ) => ! p.scope || p.scope( s )
+				) );
+			let l = r,
+				c = de( t ) || ft.empty,
+				f = he( n, c.tags );
+			if (
+				( f &&
+					( l && ( l += ' ' ),
+					( l += f ),
+					c.mode == 1 && ( r += ( r ? ' ' : '' ) + f ) ),
+				this.startSpan( Math.max( e, O ), l ),
+				c.opaque )
+			)
+				return;
+			let d = t.tree && t.tree.prop( k.mounted );
+			if ( d && d.overlay ) {
+				let p = t.node.enter( d.overlay[ 0 ].from + O, 1 ),
+					$ = this.highlighters.filter(
+						( W ) => ! W.scope || W.scope( d.tree.type )
+					),
+					A = t.firstChild();
+				for ( let W = 0, q = O; ; W++ ) {
+					let E = W < d.overlay.length ? d.overlay[ W ] : null,
+						j = E ? E.from + O : a,
+						U = Math.max( e, q ),
+						m = Math.min( i, j );
+					if ( U < m && A )
+						for (
+							;
+							t.from < m &&
+							( this.highlightRange( t, U, m, r, n ),
+							this.startSpan( Math.min( m, t.to ), l ),
+							! ( t.to >= j || ! t.nextSibling() ) );
+
+						);
+					if ( ! E || j > i ) break;
+					( q = E.to + O ),
+						q > e &&
+							( this.highlightRange(
+								p.cursor(),
+								Math.max( e, E.from + O ),
+								Math.min( i, q ),
+								'',
+								$
+							),
+							this.startSpan( Math.min( i, q ), l ) );
+				}
+				A && t.parent();
+			} else if ( t.firstChild() ) {
+				d && ( r = '' );
+				do
+					if ( ! ( t.to <= e ) ) {
+						if ( t.from >= i ) break;
+						this.highlightRange( t, e, i, r, n ),
+							this.startSpan( Math.min( i, t.to ), l );
+					}
+				while ( t.nextSibling() );
+				t.parent();
+			}
+		}
+	}
+	function de( o ) {
+		let t = o.type.prop( Dt );
+		for ( ; t && t.context && ! o.matchContext( t.context );  ) t = t.next;
+		return t || null;
+	}
+	const u = _.define,
+		ut = u(),
+		F = u(),
+		qt = u( F ),
+		zt = u( F ),
+		M = u(),
+		ct = u( M ),
+		Rt = u( M ),
+		z = u(),
+		J = u( z ),
+		K = u(),
+		G = u(),
+		Nt = u(),
+		nt = u( Nt ),
+		dt = u(),
+		h = {
+			comment: ut,
+			lineComment: u( ut ),
+			blockComment: u( ut ),
+			docComment: u( ut ),
+			name: F,
+			variableName: u( F ),
+			typeName: qt,
+			tagName: u( qt ),
+			propertyName: zt,
+			attributeName: u( zt ),
+			className: u( F ),
+			labelName: u( F ),
+			namespace: u( F ),
+			macroName: u( F ),
+			literal: M,
+			string: ct,
+			docString: u( ct ),
+			character: u( ct ),
+			attributeValue: u( ct ),
+			number: Rt,
+			integer: u( Rt ),
+			float: u( Rt ),
+			bool: u( M ),
+			regexp: u( M ),
+			escape: u( M ),
+			color: u( M ),
+			url: u( M ),
+			keyword: K,
+			self: u( K ),
+			null: u( K ),
+			atom: u( K ),
+			unit: u( K ),
+			modifier: u( K ),
+			operatorKeyword: u( K ),
+			controlKeyword: u( K ),
+			definitionKeyword: u( K ),
+			moduleKeyword: u( K ),
+			operator: G,
+			derefOperator: u( G ),
+			arithmeticOperator: u( G ),
+			logicOperator: u( G ),
+			bitwiseOperator: u( G ),
+			compareOperator: u( G ),
+			updateOperator: u( G ),
+			definitionOperator: u( G ),
+			typeOperator: u( G ),
+			controlOperator: u( G ),
+			punctuation: Nt,
+			separator: u( Nt ),
+			bracket: nt,
+			angleBracket: u( nt ),
+			squareBracket: u( nt ),
+			paren: u( nt ),
+			brace: u( nt ),
+			content: z,
+			heading: J,
+			heading1: u( J ),
+			heading2: u( J ),
+			heading3: u( J ),
+			heading4: u( J ),
+			heading5: u( J ),
+			heading6: u( J ),
+			contentSeparator: u( z ),
+			list: u( z ),
+			quote: u( z ),
+			emphasis: u( z ),
+			strong: u( z ),
+			link: u( z ),
+			monospace: u( z ),
+			strikethrough: u( z ),
+			inserted: u(),
+			deleted: u(),
+			changed: u(),
+			invalid: u(),
+			meta: dt,
+			documentMeta: u( dt ),
+			annotation: u( dt ),
+			processingInstruction: u( dt ),
+			definition: _.defineModifier( 'definition' ),
+			constant: _.defineModifier( 'constant' ),
+			function: _.defineModifier( 'function' ),
+			standard: _.defineModifier( 'standard' ),
+			local: _.defineModifier( 'local' ),
+			special: _.defineModifier( 'special' ),
+		};
+	for ( let o in h ) {
+		let t = h[ o ];
+		t instanceof _ && ( t.name = o );
+	}
+	Vt( [
+		{ tag: h.link, class: 'tok-link' },
+		{ tag: h.heading, class: 'tok-heading' },
+		{ tag: h.emphasis, class: 'tok-emphasis' },
+		{ tag: h.strong, class: 'tok-strong' },
+		{ tag: h.keyword, class: 'tok-keyword' },
+		{ tag: h.atom, class: 'tok-atom' },
+		{ tag: h.bool, class: 'tok-bool' },
+		{ tag: h.url, class: 'tok-url' },
+		{ tag: h.labelName, class: 'tok-labelName' },
+		{ tag: h.inserted, class: 'tok-inserted' },
+		{ tag: h.deleted, class: 'tok-deleted' },
+		{ tag: h.literal, class: 'tok-literal' },
+		{ tag: h.string, class: 'tok-string' },
+		{ tag: h.number, class: 'tok-number' },
+		{
+			tag: [ h.regexp, h.escape, h.special( h.string ) ],
+			class: 'tok-string2',
+		},
+		{ tag: h.variableName, class: 'tok-variableName' },
+		{ tag: h.local( h.variableName ), class: 'tok-variableName tok-local' },
+		{
+			tag: h.definition( h.variableName ),
+			class: 'tok-variableName tok-definition',
+		},
+		{ tag: h.special( h.variableName ), class: 'tok-variableName2' },
+		{
+			tag: h.definition( h.propertyName ),
+			class: 'tok-propertyName tok-definition',
+		},
+		{ tag: h.typeName, class: 'tok-typeName' },
+		{ tag: h.namespace, class: 'tok-namespace' },
+		{ tag: h.className, class: 'tok-className' },
+		{ tag: h.macroName, class: 'tok-macroName' },
+		{ tag: h.propertyName, class: 'tok-propertyName' },
+		{ tag: h.operator, class: 'tok-operator' },
+		{ tag: h.comment, class: 'tok-comment' },
+		{ tag: h.meta, class: 'tok-meta' },
+		{ tag: h.invalid, class: 'tok-invalid' },
+		{ tag: h.punctuation, class: 'tok-punctuation' },
+	] );
+	class pt {
+		constructor( t, e, i, r, n, s, O, a, l, c = 0, f ) {
+			( this.p = t ),
+				( this.stack = e ),
+				( this.state = i ),
+				( this.reducePos = r ),
+				( this.pos = n ),
+				( this.score = s ),
+				( this.buffer = O ),
+				( this.bufferBase = a ),
+				( this.curContext = l ),
+				( this.lookAhead = c ),
+				( this.parent = f );
+		}
+		toString() {
+			return `[${ this.stack
+				.filter( ( t, e ) => e % 3 == 0 )
+				.concat( this.state ) }]@${ this.pos }${
+				this.score ? '!' + this.score : ''
+			}`;
+		}
+		static start( t, e, i = 0 ) {
+			let r = t.parser.context;
+			return new pt(
+				t,
+				[],
+				e,
+				i,
+				i,
+				0,
+				[],
+				0,
+				r ? new Kt( r, r.start ) : null,
+				0,
+				null
+			);
+		}
+		get context() {
+			return this.curContext ? this.curContext.context : null;
+		}
+		pushState( t, e ) {
+			this.stack.push(
+				this.state,
+				e,
+				this.bufferBase + this.buffer.length
+			),
+				( this.state = t );
+		}
+		reduce( t ) {
+			var e;
+			let i = t >> 19,
+				r = t & 65535,
+				{ parser: n } = this.p,
+				s = this.reducePos < this.pos - 25;
+			s && this.setLookAhead( this.pos );
+			let O = n.dynamicPrecedence( r );
+			if ( ( O && ( this.score += O ), i == 0 ) ) {
+				this.pushState(
+					n.getGoto( this.state, r, ! 0 ),
+					this.reducePos
+				),
+					r < n.minRepeatTerm &&
+						this.storeNode(
+							r,
+							this.reducePos,
+							this.reducePos,
+							s ? 8 : 4,
+							! 0
+						),
+					this.reduceContext( r, this.reducePos );
+				return;
+			}
+			let a = this.stack.length - ( i - 1 ) * 3 - ( t & 262144 ? 6 : 0 ),
+				l = a ? this.stack[ a - 2 ] : this.p.ranges[ 0 ].from,
+				c = this.reducePos - l;
+			c >= 2e3 &&
+				! (
+					! (
+						( e = this.p.parser.nodeSet.types[ r ] ) === null ||
+						e === void 0
+					) && e.isAnonymous
+				) &&
+				( l == this.p.lastBigReductionStart
+					? ( this.p.bigReductionCount++,
+					  ( this.p.lastBigReductionSize = c ) )
+					: this.p.lastBigReductionSize < c &&
+					  ( ( this.p.bigReductionCount = 1 ),
+					  ( this.p.lastBigReductionStart = l ),
+					  ( this.p.lastBigReductionSize = c ) ) );
+			let f = a ? this.stack[ a - 1 ] : 0,
+				d = this.bufferBase + this.buffer.length - f;
+			if ( r < n.minRepeatTerm || t & 131072 ) {
+				let p = n.stateFlag( this.state, 1 )
+					? this.pos
+					: this.reducePos;
+				this.storeNode( r, l, p, d + 4, ! 0 );
+			}
+			if ( t & 262144 ) this.state = this.stack[ a ];
+			else {
+				let p = this.stack[ a - 3 ];
+				this.state = n.getGoto( p, r, ! 0 );
+			}
+			for ( ; this.stack.length > a;  ) this.stack.pop();
+			this.reduceContext( r, l );
+		}
+		storeNode( t, e, i, r = 4, n = ! 1 ) {
+			if (
+				t == 0 &&
+				( ! this.stack.length ||
+					this.stack[ this.stack.length - 1 ] <
+						this.buffer.length + this.bufferBase )
+			) {
+				let s = this,
+					O = this.buffer.length;
+				if (
+					( O == 0 &&
+						s.parent &&
+						( ( O = s.bufferBase - s.parent.bufferBase ),
+						( s = s.parent ) ),
+					O > 0 && s.buffer[ O - 4 ] == 0 && s.buffer[ O - 1 ] > -1 )
+				) {
+					if ( e == i ) return;
+					if ( s.buffer[ O - 2 ] >= e ) {
+						s.buffer[ O - 2 ] = i;
+						return;
+					}
+				}
+			}
+			if ( ! n || this.pos == i ) this.buffer.push( t, e, i, r );
+			else {
+				let s = this.buffer.length;
+				if ( s > 0 && this.buffer[ s - 4 ] != 0 ) {
+					let O = ! 1;
+					for ( let a = s; a > 0 && this.buffer[ a - 2 ] > i; a -= 4 )
+						if ( this.buffer[ a - 1 ] >= 0 ) {
+							O = ! 0;
+							break;
+						}
+					if ( O )
+						for ( ; s > 0 && this.buffer[ s - 2 ] > i;  )
+							( this.buffer[ s ] = this.buffer[ s - 4 ] ),
+								( this.buffer[ s + 1 ] = this.buffer[ s - 3 ] ),
+								( this.buffer[ s + 2 ] = this.buffer[ s - 2 ] ),
+								( this.buffer[ s + 3 ] = this.buffer[ s - 1 ] ),
+								( s -= 4 ),
+								r > 4 && ( r -= 4 );
+				}
+				( this.buffer[ s ] = t ),
+					( this.buffer[ s + 1 ] = e ),
+					( this.buffer[ s + 2 ] = i ),
+					( this.buffer[ s + 3 ] = r );
+			}
+		}
+		shift( t, e, i, r ) {
+			if ( t & 131072 ) this.pushState( t & 65535, this.pos );
+			else if ( ( t & 262144 ) == 0 ) {
+				let n = t,
+					{ parser: s } = this.p;
+				( r > this.pos || e <= s.maxNode ) &&
+					( ( this.pos = r ),
+					s.stateFlag( n, 1 ) || ( this.reducePos = r ) ),
+					this.pushState( n, i ),
+					this.shiftContext( e, i ),
+					e <= s.maxNode && this.buffer.push( e, i, r, 4 );
+			} else
+				( this.pos = r ),
+					this.shiftContext( e, i ),
+					e <= this.p.parser.maxNode &&
+						this.buffer.push( e, i, r, 4 );
+		}
+		apply( t, e, i, r ) {
+			t & 65536 ? this.reduce( t ) : this.shift( t, e, i, r );
+		}
+		useNode( t, e ) {
+			let i = this.p.reused.length - 1;
+			( i < 0 || this.p.reused[ i ] != t ) &&
+				( this.p.reused.push( t ), i++ );
+			let r = this.pos;
+			( this.reducePos = this.pos = r + t.length ),
+				this.pushState( e, r ),
+				this.buffer.push( i, r, this.reducePos, -1 ),
+				this.curContext &&
+					this.updateContext(
+						this.curContext.tracker.reuse(
+							this.curContext.context,
+							t,
+							this,
+							this.p.stream.reset( this.pos - t.length )
+						)
+					);
+		}
+		split() {
+			let t = this,
+				e = t.buffer.length;
+			for ( ; e > 0 && t.buffer[ e - 2 ] > t.reducePos;  ) e -= 4;
+			let i = t.buffer.slice( e ),
+				r = t.bufferBase + e;
+			for ( ; t && r == t.bufferBase;  ) t = t.parent;
+			return new pt(
+				this.p,
+				this.stack.slice(),
+				this.state,
+				this.reducePos,
+				this.pos,
+				this.score,
+				i,
+				r,
+				this.curContext,
+				this.lookAhead,
+				t
+			);
+		}
+		recoverByDelete( t, e ) {
+			let i = t <= this.p.parser.maxNode;
+			i && this.storeNode( t, this.pos, e, 4 ),
+				this.storeNode( 0, this.pos, e, i ? 8 : 4 ),
+				( this.pos = this.reducePos = e ),
+				( this.score -= 190 );
+		}
+		canShift( t ) {
+			for ( let e = new pe( this ); ;  ) {
+				let i =
+					this.p.parser.stateSlot( e.state, 4 ) ||
+					this.p.parser.hasAction( e.state, t );
+				if ( i == 0 ) return ! 1;
+				if ( ( i & 65536 ) == 0 ) return ! 0;
+				e.reduce( i );
+			}
+		}
+		recoverByInsert( t ) {
+			if ( this.stack.length >= 300 ) return [];
+			let e = this.p.parser.nextStates( this.state );
+			if ( e.length > 8 || this.stack.length >= 120 ) {
+				let r = [];
+				for ( let n = 0, s; n < e.length; n += 2 )
+					( s = e[ n + 1 ] ) != this.state &&
+						this.p.parser.hasAction( s, t ) &&
+						r.push( e[ n ], s );
+				if ( this.stack.length < 120 )
+					for ( let n = 0; r.length < 8 && n < e.length; n += 2 ) {
+						let s = e[ n + 1 ];
+						r.some( ( O, a ) => a & 1 && O == s ) ||
+							r.push( e[ n ], s );
+					}
+				e = r;
+			}
+			let i = [];
+			for ( let r = 0; r < e.length && i.length < 4; r += 2 ) {
+				let n = e[ r + 1 ];
+				if ( n == this.state ) continue;
+				let s = this.split();
+				s.pushState( n, this.pos ),
+					s.storeNode( 0, s.pos, s.pos, 4, ! 0 ),
+					s.shiftContext( e[ r ], this.pos ),
+					( s.reducePos = this.pos ),
+					( s.score -= 200 ),
+					i.push( s );
+			}
+			return i;
+		}
+		forceReduce() {
+			let { parser: t } = this.p,
+				e = t.stateSlot( this.state, 5 );
+			if ( ( e & 65536 ) == 0 ) return ! 1;
+			if ( ! t.validAction( this.state, e ) ) {
+				let i = e >> 19,
+					r = e & 65535,
+					n = this.stack.length - i * 3;
+				if ( n < 0 || t.getGoto( this.stack[ n ], r, ! 1 ) < 0 ) {
+					let s = this.findForcedReduction();
+					if ( s == null ) return ! 1;
+					e = s;
+				}
+				this.storeNode( 0, this.pos, this.pos, 4, ! 0 ),
+					( this.score -= 100 );
+			}
+			return ( this.reducePos = this.pos ), this.reduce( e ), ! 0;
+		}
+		findForcedReduction() {
+			let { parser: t } = this.p,
+				e = [],
+				i = ( r, n ) => {
+					if ( ! e.includes( r ) )
+						return (
+							e.push( r ),
+							t.allActions( r, ( s ) => {
+								if ( ! ( s & 393216 ) )
+									if ( s & 65536 ) {
+										let O = ( s >> 19 ) - n;
+										if ( O > 1 ) {
+											let a = s & 65535,
+												l = this.stack.length - O * 3;
+											if (
+												l >= 0 &&
+												t.getGoto(
+													this.stack[ l ],
+													a,
+													! 1
+												) >= 0
+											)
+												return ( O << 19 ) | 65536 | a;
+										}
+									} else {
+										let O = i( s, n + 1 );
+										if ( O != null ) return O;
+									}
+							} )
+						);
+				};
+			return i( this.state, 0 );
+		}
+		forceAll() {
+			for ( ; ! this.p.parser.stateFlag( this.state, 2 );  )
+				if ( ! this.forceReduce() ) {
+					this.storeNode( 0, this.pos, this.pos, 4, ! 0 );
+					break;
+				}
+			return this;
+		}
+		get deadEnd() {
+			if ( this.stack.length != 3 ) return ! 1;
+			let { parser: t } = this.p;
+			return (
+				t.data[ t.stateSlot( this.state, 1 ) ] == 65535 &&
+				! t.stateSlot( this.state, 4 )
+			);
+		}
+		restart() {
+			this.storeNode( 0, this.pos, this.pos, 4, ! 0 ),
+				( this.state = this.stack[ 0 ] ),
+				( this.stack.length = 0 );
+		}
+		sameState( t ) {
+			if ( this.state != t.state || this.stack.length != t.stack.length )
+				return ! 1;
+			for ( let e = 0; e < this.stack.length; e += 3 )
+				if ( this.stack[ e ] != t.stack[ e ] ) return ! 1;
+			return ! 0;
+		}
+		get parser() {
+			return this.p.parser;
+		}
+		dialectEnabled( t ) {
+			return this.p.parser.dialect.flags[ t ];
+		}
+		shiftContext( t, e ) {
+			this.curContext &&
+				this.updateContext(
+					this.curContext.tracker.shift(
+						this.curContext.context,
+						t,
+						this,
+						this.p.stream.reset( e )
+					)
+				);
+		}
+		reduceContext( t, e ) {
+			this.curContext &&
+				this.updateContext(
+					this.curContext.tracker.reduce(
+						this.curContext.context,
+						t,
+						this,
+						this.p.stream.reset( e )
+					)
+				);
+		}
+		emitContext() {
+			let t = this.buffer.length - 1;
+			( t < 0 || this.buffer[ t ] != -3 ) &&
+				this.buffer.push(
+					this.curContext.hash,
+					this.pos,
+					this.pos,
+					-3
+				);
+		}
+		emitLookAhead() {
+			let t = this.buffer.length - 1;
+			( t < 0 || this.buffer[ t ] != -4 ) &&
+				this.buffer.push( this.lookAhead, this.pos, this.pos, -4 );
+		}
+		updateContext( t ) {
+			if ( t != this.curContext.context ) {
+				let e = new Kt( this.curContext.tracker, t );
+				e.hash != this.curContext.hash && this.emitContext(),
+					( this.curContext = e );
+			}
+		}
+		setLookAhead( t ) {
+			t > this.lookAhead &&
+				( this.emitLookAhead(), ( this.lookAhead = t ) );
+		}
+		close() {
+			this.curContext &&
+				this.curContext.tracker.strict &&
+				this.emitContext(),
+				this.lookAhead > 0 && this.emitLookAhead();
+		}
+	}
+	class Kt {
+		constructor( t, e ) {
+			( this.tracker = t ),
+				( this.context = e ),
+				( this.hash = t.strict ? t.hash( e ) : 0 );
+		}
+	}
+	class pe {
+		constructor( t ) {
+			( this.start = t ),
+				( this.state = t.state ),
+				( this.stack = t.stack ),
+				( this.base = this.stack.length );
+		}
+		reduce( t ) {
+			let e = t & 65535,
+				i = t >> 19;
+			i == 0
+				? ( this.stack == this.start.stack &&
+						( this.stack = this.stack.slice() ),
+				  this.stack.push( this.state, 0, 0 ),
+				  ( this.base += 3 ) )
+				: ( this.base -= ( i - 1 ) * 3 );
+			let r = this.start.p.parser.getGoto(
+				this.stack[ this.base - 3 ],
+				e,
+				! 0
+			);
+			this.state = r;
+		}
+	}
+	class gt {
+		constructor( t, e, i ) {
+			( this.stack = t ),
+				( this.pos = e ),
+				( this.index = i ),
+				( this.buffer = t.buffer ),
+				this.index == 0 && this.maybeNext();
+		}
+		static create( t, e = t.bufferBase + t.buffer.length ) {
+			return new gt( t, e, e - t.bufferBase );
+		}
+		maybeNext() {
+			let t = this.stack.parent;
+			t != null &&
+				( ( this.index = this.stack.bufferBase - t.bufferBase ),
+				( this.stack = t ),
+				( this.buffer = t.buffer ) );
+		}
+		get id() {
+			return this.buffer[ this.index - 4 ];
+		}
+		get start() {
+			return this.buffer[ this.index - 3 ];
+		}
+		get end() {
+			return this.buffer[ this.index - 2 ];
+		}
+		get size() {
+			return this.buffer[ this.index - 1 ];
+		}
+		next() {
+			( this.index -= 4 ),
+				( this.pos -= 4 ),
+				this.index == 0 && this.maybeNext();
+		}
+		fork() {
+			return new gt( this.stack, this.pos, this.index );
+		}
+	}
+	function Qt( o, t = Uint16Array ) {
+		if ( typeof o != 'string' ) return o;
+		let e = null;
+		for ( let i = 0, r = 0; i < o.length;  ) {
+			let n = 0;
+			for (;;) {
+				let s = o.charCodeAt( i++ ),
+					O = ! 1;
+				if ( s == 126 ) {
+					n = 65535;
+					break;
+				}
+				s >= 92 && s--, s >= 34 && s--;
+				let a = s - 32;
+				if (
+					( a >= 46 && ( ( a -= 46 ), ( O = ! 0 ) ), ( n += a ), O )
+				)
+					break;
+				n *= 46;
+			}
+			e ? ( e[ r++ ] = n ) : ( e = new t( n ) );
+		}
+		return e;
+	}
+	class $t {
+		constructor() {
+			( this.start = -1 ),
+				( this.value = -1 ),
+				( this.end = -1 ),
+				( this.extended = -1 ),
+				( this.lookAhead = 0 ),
+				( this.mask = 0 ),
+				( this.context = 0 );
+		}
+	}
+	const Gt = new $t();
+	class ge {
+		constructor( t, e ) {
+			( this.input = t ),
+				( this.ranges = e ),
+				( this.chunk = '' ),
+				( this.chunkOff = 0 ),
+				( this.chunk2 = '' ),
+				( this.chunk2Pos = 0 ),
+				( this.next = -1 ),
+				( this.token = Gt ),
+				( this.rangeIndex = 0 ),
+				( this.pos = this.chunkPos = e[ 0 ].from ),
+				( this.range = e[ 0 ] ),
+				( this.end = e[ e.length - 1 ].to ),
+				this.readNext();
+		}
+		resolveOffset( t, e ) {
+			let i = this.range,
+				r = this.rangeIndex,
+				n = this.pos + t;
+			for ( ; n < i.from;  ) {
+				if ( ! r ) return null;
+				let s = this.ranges[ --r ];
+				( n -= i.from - s.to ), ( i = s );
+			}
+			for ( ; e < 0 ? n > i.to : n >= i.to;  ) {
+				if ( r == this.ranges.length - 1 ) return null;
+				let s = this.ranges[ ++r ];
+				( n += s.from - i.to ), ( i = s );
+			}
+			return n;
+		}
+		clipPos( t ) {
+			if ( t >= this.range.from && t < this.range.to ) return t;
+			for ( let e of this.ranges )
+				if ( e.to > t ) return Math.max( t, e.from );
+			return this.end;
+		}
+		peek( t ) {
+			let e = this.chunkOff + t,
+				i,
+				r;
+			if ( e >= 0 && e < this.chunk.length )
+				( i = this.pos + t ), ( r = this.chunk.charCodeAt( e ) );
+			else {
+				let n = this.resolveOffset( t, 1 );
+				if ( n == null ) return -1;
+				if (
+					( ( i = n ),
+					i >= this.chunk2Pos &&
+						i < this.chunk2Pos + this.chunk2.length )
+				)
+					r = this.chunk2.charCodeAt( i - this.chunk2Pos );
+				else {
+					let s = this.rangeIndex,
+						O = this.range;
+					for ( ; O.to <= i;  ) O = this.ranges[ ++s ];
+					( this.chunk2 = this.input.chunk(
+						( this.chunk2Pos = i )
+					) ),
+						i + this.chunk2.length > O.to &&
+							( this.chunk2 = this.chunk2.slice( 0, O.to - i ) ),
+						( r = this.chunk2.charCodeAt( 0 ) );
+				}
+			}
+			return (
+				i >= this.token.lookAhead && ( this.token.lookAhead = i + 1 ), r
+			);
+		}
+		acceptToken( t, e = 0 ) {
+			let i = e ? this.resolveOffset( e, -1 ) : this.pos;
+			if ( i == null || i < this.token.start )
+				throw new RangeError( 'Token end out of bounds' );
+			( this.token.value = t ), ( this.token.end = i );
+		}
+		acceptTokenTo( t, e ) {
+			( this.token.value = t ), ( this.token.end = e );
+		}
+		getChunk() {
+			if (
+				this.pos >= this.chunk2Pos &&
+				this.pos < this.chunk2Pos + this.chunk2.length
+			) {
+				let { chunk: t, chunkPos: e } = this;
+				( this.chunk = this.chunk2 ),
+					( this.chunkPos = this.chunk2Pos ),
+					( this.chunk2 = t ),
+					( this.chunk2Pos = e ),
+					( this.chunkOff = this.pos - this.chunkPos );
+			} else {
+				( this.chunk2 = this.chunk ),
+					( this.chunk2Pos = this.chunkPos );
+				let t = this.input.chunk( this.pos ),
+					e = this.pos + t.length;
+				( this.chunk =
+					e > this.range.to
+						? t.slice( 0, this.range.to - this.pos )
+						: t ),
+					( this.chunkPos = this.pos ),
+					( this.chunkOff = 0 );
+			}
+		}
+		readNext() {
+			return this.chunkOff >= this.chunk.length &&
+				( this.getChunk(), this.chunkOff == this.chunk.length )
+				? ( this.next = -1 )
+				: ( this.next = this.chunk.charCodeAt( this.chunkOff ) );
+		}
+		advance( t = 1 ) {
+			for ( this.chunkOff += t; this.pos + t >= this.range.to;  ) {
+				if ( this.rangeIndex == this.ranges.length - 1 )
+					return this.setDone();
+				( t -= this.range.to - this.pos ),
+					( this.range = this.ranges[ ++this.rangeIndex ] ),
+					( this.pos = this.range.from );
+			}
+			return (
+				( this.pos += t ),
+				this.pos >= this.token.lookAhead &&
+					( this.token.lookAhead = this.pos + 1 ),
+				this.readNext()
+			);
+		}
+		setDone() {
+			return (
+				( this.pos = this.chunkPos = this.end ),
+				( this.range =
+					this.ranges[
+						( this.rangeIndex = this.ranges.length - 1 )
+					] ),
+				( this.chunk = '' ),
+				( this.next = -1 )
+			);
+		}
+		reset( t, e ) {
+			if (
+				( e
+					? ( ( this.token = e ),
+					  ( e.start = t ),
+					  ( e.lookAhead = t + 1 ),
+					  ( e.value = e.extended = -1 ) )
+					: ( this.token = Gt ),
+				this.pos != t )
+			) {
+				if ( ( ( this.pos = t ), t == this.end ) )
+					return this.setDone(), this;
+				for ( ; t < this.range.from;  )
+					this.range = this.ranges[ --this.rangeIndex ];
+				for ( ; t >= this.range.to;  )
+					this.range = this.ranges[ ++this.rangeIndex ];
+				t >= this.chunkPos && t < this.chunkPos + this.chunk.length
+					? ( this.chunkOff = t - this.chunkPos )
+					: ( ( this.chunk = '' ), ( this.chunkOff = 0 ) ),
+					this.readNext();
+			}
+			return this;
+		}
+		read( t, e ) {
+			if ( t >= this.chunkPos && e <= this.chunkPos + this.chunk.length )
+				return this.chunk.slice( t - this.chunkPos, e - this.chunkPos );
+			if (
+				t >= this.chunk2Pos &&
+				e <= this.chunk2Pos + this.chunk2.length
+			)
+				return this.chunk2.slice(
+					t - this.chunk2Pos,
+					e - this.chunk2Pos
+				);
+			if ( t >= this.range.from && e <= this.range.to )
+				return this.input.read( t, e );
+			let i = '';
+			for ( let r of this.ranges ) {
+				if ( r.from >= e ) break;
+				r.to > t &&
+					( i += this.input.read(
+						Math.max( r.from, t ),
+						Math.min( r.to, e )
+					) );
+			}
+			return i;
+		}
+	}
+	class it {
+		constructor( t, e ) {
+			( this.data = t ), ( this.id = e );
+		}
+		token( t, e ) {
+			let { parser: i } = e.p;
+			Qe( this.data, t, e, this.id, i.data, i.tokenPrecTable );
+		}
+	}
+	( it.prototype.contextual =
+		it.prototype.fallback =
+		it.prototype.extend =
+			! 1 ),
+		( it.prototype.fallback = it.prototype.extend = ! 1 );
+	function Qe( o, t, e, i, r, n ) {
+		let s = 0,
+			O = 1 << i,
+			{ dialect: a } = e.p.parser;
+		t: for ( ; ( O & o[ s ] ) != 0;  ) {
+			let l = o[ s + 1 ];
+			for ( let p = s + 3; p < l; p += 2 )
+				if ( ( o[ p + 1 ] & O ) > 0 ) {
+					let $ = o[ p ];
+					if (
+						a.allows( $ ) &&
+						( t.token.value == -1 ||
+							t.token.value == $ ||
+							$e( $, t.token.value, r, n ) )
+					) {
+						t.acceptToken( $ );
+						break;
+					}
+				}
+			let c = t.next,
+				f = 0,
+				d = o[ s + 2 ];
+			if ( t.next < 0 && d > f && o[ l + d * 3 - 3 ] == 65535 ) {
+				s = o[ l + d * 3 - 1 ];
+				continue t;
+			}
+			for ( ; f < d;  ) {
+				let p = ( f + d ) >> 1,
+					$ = l + p + ( p << 1 ),
+					A = o[ $ ],
+					W = o[ $ + 1 ] || 65536;
+				if ( c < A ) d = p;
+				else if ( c >= W ) f = p + 1;
+				else {
+					( s = o[ $ + 2 ] ), t.advance();
+					continue t;
+				}
+			}
+			break;
+		}
+	}
+	function Ut( o, t, e ) {
+		for ( let i = t, r; ( r = o[ i ] ) != 65535; i++ )
+			if ( r == e ) return i - t;
+		return -1;
+	}
+	function $e( o, t, e, i ) {
+		let r = Ut( e, i, t );
+		return r < 0 || Ut( e, i, o ) < r;
+	}
+	const v =
+		typeof process < 'u' &&
+		process.env &&
+		/\bparse\b/.test( process.env.LOG );
+	let At = null;
+	function It( o, t, e ) {
+		let i = o.cursor( R.IncludeAnonymous );
+		for ( i.moveTo( t ); ;  )
+			if ( ! ( e < 0 ? i.childBefore( t ) : i.childAfter( t ) ) )
+				for (;;) {
+					if ( ( e < 0 ? i.to < t : i.from > t ) && ! i.type.isError )
+						return e < 0
+							? Math.max( 0, Math.min( i.to - 1, t - 25 ) )
+							: Math.min(
+									o.length,
+									Math.max( i.from + 1, t + 25 )
+							  );
+					if ( e < 0 ? i.prevSibling() : i.nextSibling() ) break;
+					if ( ! i.parent() ) return e < 0 ? 0 : o.length;
+				}
+	}
+	class Pe {
+		constructor( t, e ) {
+			( this.fragments = t ),
+				( this.nodeSet = e ),
+				( this.i = 0 ),
+				( this.fragment = null ),
+				( this.safeFrom = -1 ),
+				( this.safeTo = -1 ),
+				( this.trees = [] ),
+				( this.start = [] ),
+				( this.index = [] ),
+				this.nextFragment();
+		}
+		nextFragment() {
+			let t = ( this.fragment =
+				this.i == this.fragments.length
+					? null
+					: this.fragments[ this.i++ ] );
+			if ( t ) {
+				for (
+					this.safeFrom = t.openStart
+						? It( t.tree, t.from + t.offset, 1 ) - t.offset
+						: t.from,
+						this.safeTo = t.openEnd
+							? It( t.tree, t.to + t.offset, -1 ) - t.offset
+							: t.to;
+					this.trees.length;
+
+				)
+					this.trees.pop(), this.start.pop(), this.index.pop();
+				this.trees.push( t.tree ),
+					this.start.push( -t.offset ),
+					this.index.push( 0 ),
+					( this.nextStart = this.safeFrom );
+			} else this.nextStart = 1e9;
+		}
+		nodeAt( t ) {
+			if ( t < this.nextStart ) return null;
+			for ( ; this.fragment && this.safeTo <= t;  ) this.nextFragment();
+			if ( ! this.fragment ) return null;
+			for (;;) {
+				let e = this.trees.length - 1;
+				if ( e < 0 ) return this.nextFragment(), null;
+				let i = this.trees[ e ],
+					r = this.index[ e ];
+				if ( r == i.children.length ) {
+					this.trees.pop(), this.start.pop(), this.index.pop();
+					continue;
+				}
+				let n = i.children[ r ],
+					s = this.start[ e ] + i.positions[ r ];
+				if ( s > t ) return ( this.nextStart = s ), null;
+				if ( n instanceof C ) {
+					if ( s == t ) {
+						if ( s < this.safeFrom ) return null;
+						let O = s + n.length;
+						if ( O <= this.safeTo ) {
+							let a = n.prop( k.lookAhead );
+							if ( ! a || O + a < this.fragment.to ) return n;
+						}
+					}
+					this.index[ e ]++,
+						s + n.length >= Math.max( this.safeFrom, t ) &&
+							( this.trees.push( n ),
+							this.start.push( s ),
+							this.index.push( 0 ) );
+				} else this.index[ e ]++, ( this.nextStart = s + n.length );
+			}
+		}
+	}
+	class me {
+		constructor( t, e ) {
+			( this.stream = e ),
+				( this.tokens = [] ),
+				( this.mainToken = null ),
+				( this.actions = [] ),
+				( this.tokens = t.tokenizers.map( ( i ) => new $t() ) );
+		}
+		getActions( t ) {
+			let e = 0,
+				i = null,
+				{ parser: r } = t.p,
+				{ tokenizers: n } = r,
+				s = r.stateSlot( t.state, 3 ),
+				O = t.curContext ? t.curContext.hash : 0,
+				a = 0;
+			for ( let l = 0; l < n.length; l++ ) {
+				if ( ( ( 1 << l ) & s ) == 0 ) continue;
+				let c = n[ l ],
+					f = this.tokens[ l ];
+				if (
+					! ( i && ! c.fallback ) &&
+					( ( c.contextual ||
+						f.start != t.pos ||
+						f.mask != s ||
+						f.context != O ) &&
+						( this.updateCachedToken( f, c, t ),
+						( f.mask = s ),
+						( f.context = O ) ),
+					f.lookAhead > f.end + 25 &&
+						( a = Math.max( f.lookAhead, a ) ),
+					f.value != 0 )
+				) {
+					let d = e;
+					if (
+						( f.extended > -1 &&
+							( e = this.addActions( t, f.extended, f.end, e ) ),
+						( e = this.addActions( t, f.value, f.end, e ) ),
+						! c.extend && ( ( i = f ), e > d ) )
+					)
+						break;
+				}
+			}
+			for ( ; this.actions.length > e;  ) this.actions.pop();
+			return (
+				a && t.setLookAhead( a ),
+				! i &&
+					t.pos == this.stream.end &&
+					( ( i = new $t() ),
+					( i.value = t.p.parser.eofTerm ),
+					( i.start = i.end = t.pos ),
+					( e = this.addActions( t, i.value, i.end, e ) ) ),
+				( this.mainToken = i ),
+				this.actions
+			);
+		}
+		getMainToken( t ) {
+			if ( this.mainToken ) return this.mainToken;
+			let e = new $t(),
+				{ pos: i, p: r } = t;
+			return (
+				( e.start = i ),
+				( e.end = Math.min( i + 1, r.stream.end ) ),
+				( e.value = i == r.stream.end ? r.parser.eofTerm : 0 ),
+				e
+			);
+		}
+		updateCachedToken( t, e, i ) {
+			let r = this.stream.clipPos( i.pos );
+			if ( ( e.token( this.stream.reset( r, t ), i ), t.value > -1 ) ) {
+				let { parser: n } = i.p;
+				for ( let s = 0; s < n.specialized.length; s++ )
+					if ( n.specialized[ s ] == t.value ) {
+						let O = n.specializers[ s ](
+							this.stream.read( t.start, t.end ),
+							i
+						);
+						if ( O >= 0 && i.p.parser.dialect.allows( O >> 1 ) ) {
+							( O & 1 ) == 0
+								? ( t.value = O >> 1 )
+								: ( t.extended = O >> 1 );
+							break;
+						}
+					}
+			} else ( t.value = 0 ), ( t.end = this.stream.clipPos( r + 1 ) );
+		}
+		putAction( t, e, i, r ) {
+			for ( let n = 0; n < r; n += 3 )
+				if ( this.actions[ n ] == t ) return r;
+			return (
+				( this.actions[ r++ ] = t ),
+				( this.actions[ r++ ] = e ),
+				( this.actions[ r++ ] = i ),
+				r
+			);
+		}
+		addActions( t, e, i, r ) {
+			let { state: n } = t,
+				{ parser: s } = t.p,
+				{ data: O } = s;
+			for ( let a = 0; a < 2; a++ )
+				for ( let l = s.stateSlot( n, a ? 2 : 1 ); ; l += 3 ) {
+					if ( O[ l ] == 65535 )
+						if ( O[ l + 1 ] == 1 ) l = Y( O, l + 2 );
+						else {
+							r == 0 &&
+								O[ l + 1 ] == 2 &&
+								( r = this.putAction(
+									Y( O, l + 2 ),
+									e,
+									i,
+									r
+								) );
+							break;
+						}
+					O[ l ] == e &&
+						( r = this.putAction( Y( O, l + 1 ), e, i, r ) );
+				}
+			return r;
+		}
+	}
+	class ke {
+		constructor( t, e, i, r ) {
+			( this.parser = t ),
+				( this.input = e ),
+				( this.ranges = r ),
+				( this.recovering = 0 ),
+				( this.nextStackID = 9812 ),
+				( this.minStackPos = 0 ),
+				( this.reused = [] ),
+				( this.stoppedAt = null ),
+				( this.lastBigReductionStart = -1 ),
+				( this.lastBigReductionSize = 0 ),
+				( this.bigReductionCount = 0 ),
+				( this.stream = new ge( e, r ) ),
+				( this.tokens = new me( t, this.stream ) ),
+				( this.topTerm = t.top[ 1 ] );
+			let { from: n } = r[ 0 ];
+			( this.stacks = [ pt.start( this, t.top[ 0 ], n ) ] ),
+				( this.fragments =
+					i.length && this.stream.end - n > t.bufferLength * 4
+						? new Pe( i, t.nodeSet )
+						: null );
+		}
+		get parsedPos() {
+			return this.minStackPos;
+		}
+		advance() {
+			let t = this.stacks,
+				e = this.minStackPos,
+				i = ( this.stacks = [] ),
+				r,
+				n;
+			if ( this.bigReductionCount > 300 && t.length == 1 ) {
+				let [ s ] = t;
+				for (
+					;
+					s.forceReduce() &&
+					s.stack.length &&
+					s.stack[ s.stack.length - 2 ] >= this.lastBigReductionStart;
+
+				);
+				this.bigReductionCount = this.lastBigReductionSize = 0;
+			}
+			for ( let s = 0; s < t.length; s++ ) {
+				let O = t[ s ];
+				for (;;) {
+					if ( ( ( this.tokens.mainToken = null ), O.pos > e ) )
+						i.push( O );
+					else {
+						if ( this.advanceStack( O, i, t ) ) continue;
+						{
+							r || ( ( r = [] ), ( n = [] ) ), r.push( O );
+							let a = this.tokens.getMainToken( O );
+							n.push( a.value, a.end );
+						}
+					}
+					break;
+				}
+			}
+			if ( ! i.length ) {
+				let s = r && we( r );
+				if ( s )
+					return (
+						v && console.log( 'Finish with ' + this.stackID( s ) ),
+						this.stackToTree( s )
+					);
+				if ( this.parser.strict )
+					throw (
+						( v &&
+							r &&
+							console.log(
+								'Stuck with token ' +
+									( this.tokens.mainToken
+										? this.parser.getName(
+												this.tokens.mainToken.value
+										  )
+										: 'none' )
+							),
+						new SyntaxError( 'No parse at ' + e ) )
+					);
+				this.recovering || ( this.recovering = 5 );
+			}
+			if ( this.recovering && r ) {
+				let s =
+					this.stoppedAt != null && r[ 0 ].pos > this.stoppedAt
+						? r[ 0 ]
+						: this.runRecovery( r, n, i );
+				if ( s )
+					return (
+						v && console.log( 'Force-finish ' + this.stackID( s ) ),
+						this.stackToTree( s.forceAll() )
+					);
+			}
+			if ( this.recovering ) {
+				let s = this.recovering == 1 ? 1 : this.recovering * 3;
+				if ( i.length > s )
+					for (
+						i.sort( ( O, a ) => a.score - O.score );
+						i.length > s;
+
+					)
+						i.pop();
+				i.some( ( O ) => O.reducePos > e ) && this.recovering--;
+			} else if ( i.length > 1 ) {
+				t: for ( let s = 0; s < i.length - 1; s++ ) {
+					let O = i[ s ];
+					for ( let a = s + 1; a < i.length; a++ ) {
+						let l = i[ a ];
+						if (
+							O.sameState( l ) ||
+							( O.buffer.length > 500 && l.buffer.length > 500 )
+						)
+							if (
+								( O.score - l.score ||
+									O.buffer.length - l.buffer.length ) > 0
+							)
+								i.splice( a--, 1 );
+							else {
+								i.splice( s--, 1 );
+								continue t;
+							}
+					}
+				}
+				i.length > 12 && i.splice( 12, i.length - 12 );
+			}
+			this.minStackPos = i[ 0 ].pos;
+			for ( let s = 1; s < i.length; s++ )
+				i[ s ].pos < this.minStackPos &&
+					( this.minStackPos = i[ s ].pos );
+			return null;
+		}
+		stopAt( t ) {
+			if ( this.stoppedAt != null && this.stoppedAt < t )
+				throw new RangeError( "Can't move stoppedAt forward" );
+			this.stoppedAt = t;
+		}
+		advanceStack( t, e, i ) {
+			let r = t.pos,
+				{ parser: n } = this,
+				s = v ? this.stackID( t ) + ' -> ' : '';
+			if ( this.stoppedAt != null && r > this.stoppedAt )
+				return t.forceReduce() ? t : null;
+			if ( this.fragments ) {
+				let l = t.curContext && t.curContext.tracker.strict,
+					c = l ? t.curContext.hash : 0;
+				for ( let f = this.fragments.nodeAt( r ); f;  ) {
+					let d =
+						this.parser.nodeSet.types[ f.type.id ] == f.type
+							? n.getGoto( t.state, f.type.id )
+							: -1;
+					if (
+						d > -1 &&
+						f.length &&
+						( ! l || ( f.prop( k.contextHash ) || 0 ) == c )
+					)
+						return (
+							t.useNode( f, d ),
+							v &&
+								console.log(
+									s +
+										this.stackID( t ) +
+										` (via reuse of ${ n.getName(
+											f.type.id
+										) })`
+								),
+							! 0
+						);
+					if (
+						! ( f instanceof C ) ||
+						f.children.length == 0 ||
+						f.positions[ 0 ] > 0
+					)
+						break;
+					let p = f.children[ 0 ];
+					if ( p instanceof C && f.positions[ 0 ] == 0 ) f = p;
+					else break;
+				}
+			}
+			let O = n.stateSlot( t.state, 4 );
+			if ( O > 0 )
+				return (
+					t.reduce( O ),
+					v &&
+						console.log(
+							s +
+								this.stackID( t ) +
+								` (via always-reduce ${ n.getName(
+									O & 65535
+								) })`
+						),
+					! 0
+				);
+			if ( t.stack.length >= 8400 )
+				for ( ; t.stack.length > 6e3 && t.forceReduce();  );
+			let a = this.tokens.getActions( t );
+			for ( let l = 0; l < a.length;  ) {
+				let c = a[ l++ ],
+					f = a[ l++ ],
+					d = a[ l++ ],
+					p = l == a.length || ! i,
+					$ = p ? t : t.split(),
+					A = this.tokens.mainToken;
+				if (
+					( $.apply( c, f, A ? A.start : $.pos, d ),
+					v &&
+						console.log(
+							s +
+								this.stackID( $ ) +
+								` (via ${
+									( c & 65536 ) == 0
+										? 'shift'
+										: `reduce of ${ n.getName(
+												c & 65535
+										  ) }`
+								} for ${ n.getName( f ) } @ ${ r }${
+									$ == t ? '' : ', split'
+								})`
+						),
+					p )
+				)
+					return ! 0;
+				$.pos > r ? e.push( $ ) : i.push( $ );
+			}
+			return ! 1;
+		}
+		advanceFully( t, e ) {
+			let i = t.pos;
+			for (;;) {
+				if ( ! this.advanceStack( t, null, null ) ) return ! 1;
+				if ( t.pos > i ) return Yt( t, e ), ! 0;
+			}
+		}
+		runRecovery( t, e, i ) {
+			let r = null,
+				n = ! 1;
+			for ( let s = 0; s < t.length; s++ ) {
+				let O = t[ s ],
+					a = e[ s << 1 ],
+					l = e[ ( s << 1 ) + 1 ],
+					c = v ? this.stackID( O ) + ' -> ' : '';
+				if (
+					O.deadEnd &&
+					( n ||
+						( ( n = ! 0 ),
+						O.restart(),
+						v &&
+							console.log(
+								c + this.stackID( O ) + ' (restarted)'
+							),
+						this.advanceFully( O, i ) ) )
+				)
+					continue;
+				let f = O.split(),
+					d = c;
+				for (
+					let p = 0;
+					f.forceReduce() &&
+					p < 10 &&
+					( v &&
+						console.log(
+							d + this.stackID( f ) + ' (via force-reduce)'
+						),
+					! this.advanceFully( f, i ) );
+					p++
+				)
+					v && ( d = this.stackID( f ) + ' -> ' );
+				for ( let p of O.recoverByInsert( a ) )
+					v &&
+						console.log(
+							c + this.stackID( p ) + ' (via recover-insert)'
+						),
+						this.advanceFully( p, i );
+				this.stream.end > O.pos
+					? ( l == O.pos && ( l++, ( a = 0 ) ),
+					  O.recoverByDelete( a, l ),
+					  v &&
+							console.log(
+								c +
+									this.stackID( O ) +
+									` (via recover-delete ${ this.parser.getName(
+										a
+									) })`
+							),
+					  Yt( O, i ) )
+					: ( ! r || r.score < O.score ) && ( r = O );
+			}
+			return r;
+		}
+		stackToTree( t ) {
+			return (
+				t.close(),
+				C.build( {
+					buffer: gt.create( t ),
+					nodeSet: this.parser.nodeSet,
+					topID: this.topTerm,
+					maxBufferLength: this.parser.bufferLength,
+					reused: this.reused,
+					start: this.ranges[ 0 ].from,
+					length: t.pos - this.ranges[ 0 ].from,
+					minRepeatType: this.parser.minRepeatTerm,
+				} )
+			);
+		}
+		stackID( t ) {
+			let e = ( At || ( At = new WeakMap() ) ).get( t );
+			return (
+				e ||
+					At.set(
+						t,
+						( e = String.fromCodePoint( this.nextStackID++ ) )
+					),
+				e + t
+			);
+		}
+	}
+	function Yt( o, t ) {
+		for ( let e = 0; e < t.length; e++ ) {
+			let i = t[ e ];
+			if ( i.pos == o.pos && i.sameState( o ) ) {
+				t[ e ].score < o.score && ( t[ e ] = o );
+				return;
+			}
+		}
+		t.push( o );
+	}
+	class ye {
+		constructor( t, e, i ) {
+			( this.source = t ), ( this.flags = e ), ( this.disabled = i );
+		}
+		allows( t ) {
+			return ! this.disabled || this.disabled[ t ] == 0;
+		}
+	}
+	class Pt extends re {
+		constructor( t ) {
+			if ( ( super(), ( this.wrappers = [] ), t.version != 14 ) )
+				throw new RangeError(
+					`Parser version (${ t.version }) doesn't match runtime version (14)`
+				);
+			let e = t.nodeNames.split( ' ' );
+			this.minRepeatTerm = e.length;
+			for ( let O = 0; O < t.repeatNodeCount; O++ ) e.push( '' );
+			let i = Object.keys( t.topRules ).map(
+					( O ) => t.topRules[ O ][ 1 ]
+				),
+				r = [];
+			for ( let O = 0; O < e.length; O++ ) r.push( [] );
+			function n( O, a, l ) {
+				r[ O ].push( [ a, a.deserialize( String( l ) ) ] );
+			}
+			if ( t.nodeProps )
+				for ( let O of t.nodeProps ) {
+					let a = O[ 0 ];
+					typeof a == 'string' && ( a = k[ a ] );
+					for ( let l = 1; l < O.length;  ) {
+						let c = O[ l++ ];
+						if ( c >= 0 ) n( c, a, O[ l++ ] );
+						else {
+							let f = O[ l + -c ];
+							for ( let d = -c; d > 0; d-- ) n( O[ l++ ], a, f );
+							l++;
+						}
+					}
+				}
+			( this.nodeSet = new wt(
+				e.map( ( O, a ) =>
+					V.define( {
+						name: a >= this.minRepeatTerm ? void 0 : O,
+						id: a,
+						props: r[ a ],
+						top: i.indexOf( a ) > -1,
+						error: a == 0,
+						skipped:
+							t.skippedNodes && t.skippedNodes.indexOf( a ) > -1,
+					} )
+				)
+			) ),
+				t.propSources &&
+					( this.nodeSet = this.nodeSet.extend( ...t.propSources ) ),
+				( this.strict = ! 1 ),
+				( this.bufferLength = 1024 );
+			let s = Qt( t.tokenData );
+			( this.context = t.context ),
+				( this.specializerSpecs = t.specialized || [] ),
+				( this.specialized = new Uint16Array(
+					this.specializerSpecs.length
+				) );
+			for ( let O = 0; O < this.specializerSpecs.length; O++ )
+				this.specialized[ O ] = this.specializerSpecs[ O ].term;
+			( this.specializers = this.specializerSpecs.map( Zt ) ),
+				( this.states = Qt( t.states, Uint32Array ) ),
+				( this.data = Qt( t.stateData ) ),
+				( this.goto = Qt( t.goto ) ),
+				( this.maxTerm = t.maxTerm ),
+				( this.tokenizers = t.tokenizers.map( ( O ) =>
+					typeof O == 'number' ? new it( s, O ) : O
+				) ),
+				( this.topRules = t.topRules ),
+				( this.dialects = t.dialects || {} ),
+				( this.dynamicPrecedences = t.dynamicPrecedences || null ),
+				( this.tokenPrecTable = t.tokenPrec ),
+				( this.termNames = t.termNames || null ),
+				( this.maxNode = this.nodeSet.types.length - 1 ),
+				( this.dialect = this.parseDialect() ),
+				( this.top =
+					this.topRules[ Object.keys( this.topRules )[ 0 ] ] );
+		}
+		createParse( t, e, i ) {
+			let r = new ke( this, t, e, i );
+			for ( let n of this.wrappers ) r = n( r, t, e, i );
+			return r;
+		}
+		getGoto( t, e, i = ! 1 ) {
+			let r = this.goto;
+			if ( e >= r[ 0 ] ) return -1;
+			for ( let n = r[ e + 1 ]; ;  ) {
+				let s = r[ n++ ],
+					O = s & 1,
+					a = r[ n++ ];
+				if ( O && i ) return a;
+				for ( let l = n + ( s >> 1 ); n < l; n++ )
+					if ( r[ n ] == t ) return a;
+				if ( O ) return -1;
+			}
+		}
+		hasAction( t, e ) {
+			let i = this.data;
+			for ( let r = 0; r < 2; r++ )
+				for ( let n = this.stateSlot( t, r ? 2 : 1 ), s; ; n += 3 ) {
+					if ( ( s = i[ n ] ) == 65535 )
+						if ( i[ n + 1 ] == 1 ) s = i[ ( n = Y( i, n + 2 ) ) ];
+						else {
+							if ( i[ n + 1 ] == 2 ) return Y( i, n + 2 );
+							break;
+						}
+					if ( s == e || s == 0 ) return Y( i, n + 1 );
+				}
+			return 0;
+		}
+		stateSlot( t, e ) {
+			return this.states[ t * 6 + e ];
+		}
+		stateFlag( t, e ) {
+			return ( this.stateSlot( t, 0 ) & e ) > 0;
+		}
+		validAction( t, e ) {
+			return !! this.allActions( t, ( i ) => ( i == e ? ! 0 : null ) );
+		}
+		allActions( t, e ) {
+			let i = this.stateSlot( t, 4 ),
+				r = i ? e( i ) : void 0;
+			for ( let n = this.stateSlot( t, 1 ); r == null; n += 3 ) {
+				if ( this.data[ n ] == 65535 )
+					if ( this.data[ n + 1 ] == 1 ) n = Y( this.data, n + 2 );
+					else break;
+				r = e( Y( this.data, n + 1 ) );
+			}
+			return r;
+		}
+		nextStates( t ) {
+			let e = [];
+			for ( let i = this.stateSlot( t, 1 ); ; i += 3 ) {
+				if ( this.data[ i ] == 65535 )
+					if ( this.data[ i + 1 ] == 1 ) i = Y( this.data, i + 2 );
+					else break;
+				if ( ( this.data[ i + 2 ] & 1 ) == 0 ) {
+					let r = this.data[ i + 1 ];
+					e.some( ( n, s ) => s & 1 && n == r ) ||
+						e.push( this.data[ i ], r );
+				}
+			}
+			return e;
+		}
+		configure( t ) {
+			let e = Object.assign( Object.create( Pt.prototype ), this );
+			if (
+				( t.props && ( e.nodeSet = this.nodeSet.extend( ...t.props ) ),
+				t.top )
+			) {
+				let i = this.topRules[ t.top ];
+				if ( ! i )
+					throw new RangeError( `Invalid top rule name ${ t.top }` );
+				e.top = i;
+			}
+			return (
+				t.tokenizers &&
+					( e.tokenizers = this.tokenizers.map( ( i ) => {
+						let r = t.tokenizers.find( ( n ) => n.from == i );
+						return r ? r.to : i;
+					} ) ),
+				t.specializers &&
+					( ( e.specializers = this.specializers.slice() ),
+					( e.specializerSpecs = this.specializerSpecs.map(
+						( i, r ) => {
+							let n = t.specializers.find(
+								( O ) => O.from == i.external
+							);
+							if ( ! n ) return i;
+							let s = Object.assign( Object.assign( {}, i ), {
+								external: n.to,
+							} );
+							return ( e.specializers[ r ] = Zt( s ) ), s;
+						}
+					) ) ),
+				t.contextTracker && ( e.context = t.contextTracker ),
+				t.dialect && ( e.dialect = this.parseDialect( t.dialect ) ),
+				t.strict != null && ( e.strict = t.strict ),
+				t.wrap && ( e.wrappers = e.wrappers.concat( t.wrap ) ),
+				t.bufferLength != null && ( e.bufferLength = t.bufferLength ),
+				e
+			);
+		}
+		hasWrappers() {
+			return this.wrappers.length > 0;
+		}
+		getName( t ) {
+			return this.termNames
+				? this.termNames[ t ]
+				: String(
+						( t <= this.maxNode && this.nodeSet.types[ t ].name ) ||
+							t
+				  );
+		}
+		get eofTerm() {
+			return this.maxNode + 1;
+		}
+		get topNode() {
+			return this.nodeSet.types[ this.top[ 1 ] ];
+		}
+		dynamicPrecedence( t ) {
+			let e = this.dynamicPrecedences;
+			return e == null ? 0 : e[ t ] || 0;
+		}
+		parseDialect( t ) {
+			let e = Object.keys( this.dialects ),
+				i = e.map( () => ! 1 );
+			if ( t )
+				for ( let n of t.split( ' ' ) ) {
+					let s = e.indexOf( n );
+					s >= 0 && ( i[ s ] = ! 0 );
+				}
+			let r = null;
+			for ( let n = 0; n < e.length; n++ )
+				if ( ! i[ n ] )
+					for (
+						let s = this.dialects[ e[ n ] ], O;
+						( O = this.data[ s++ ] ) != 65535;
+
+					)
+						( r || ( r = new Uint8Array( this.maxTerm + 1 ) ) )[
+							O
+						] = 1;
+			return new ye( t, i, r );
+		}
+		static deserialize( t ) {
+			return new Pt( t );
+		}
+	}
+	function Y( o, t ) {
+		return o[ t ] | ( o[ t + 1 ] << 16 );
+	}
+	function we( o ) {
+		let t = null;
+		for ( let e of o ) {
+			let i = e.p.stoppedAt;
+			( e.pos == e.p.stream.end || ( i != null && e.pos > i ) ) &&
+				e.p.parser.stateFlag( e.state, 2 ) &&
+				( ! t || t.score < e.score ) &&
+				( t = e );
+		}
+		return t;
+	}
+	function Zt( o ) {
+		if ( o.external ) {
+			let t = o.extend ? 1 : 0;
+			return ( e, i ) => ( o.external( e, i ) << 1 ) | t;
+		}
+		return o.get;
+	}
+	const Se = le( {
+			ControlKeyword: h.controlKeyword,
+			DeclarationKeyword: h.definitionKeyword,
+			ModifierKeyword: h.modifier,
+			TypeKeyword: h.typeName,
+			'TypeName/Identifier': h.typeName,
+			'CallName/Identifier': h.function( h.name ),
+			'MemberExpression/PropertyName/Identifier': h.propertyName,
+			'CallExpression/MemberExpression/Identifier': h.function( h.name ),
+			'CallExpression/Identifier': h.function( h.name ),
+			Identifier: h.name,
+			OperatorKeyword: h.operatorKeyword,
+			Operator: h.operator,
+			CompareOp: h.operator,
+			LogicalOp: h.operator,
+			LineComment: h.comment,
+			MultiLineComment: h.comment,
+			Pragma: h.annotation,
+			StringLiteral: h.string,
+			TypedStringLiteral: h.string,
+			'TypedStringLiteral/TypeKeyword': h.string,
+			NumericLiteral: h.number,
+			TypedNumericLiteral: h.number,
+			'TypedNumericLiteral/TypeKeyword': h.number,
+			DateTimeLiteral: h.number,
+			TypedDateTimeLiteral: h.number,
+			'TypedDateTimeLiteral/TypeKeyword': h.number,
+			BooleanLiteral: h.bool,
+			Punc: h.punctuation,
+		} ),
+		xe = {
+			__proto__: null,
+			VAR: 16,
+			VAR_INPUT: 18,
+			VAR_IN_OUT: 20,
+			VAR_OUTPUT: 22,
+			VAR_TEMP: 24,
+			VAR_STAT: 26,
+			VAR_INST: 28,
+			VAR_GLOBAL: 30,
+			VAR_EXTERNAL: 32,
+			VAR_CONFIG: 34,
+			CONSTANT: 36,
+			PERSISTENT: 38,
+			RETAIN: 40,
+			AT: 44,
+			BOOL: 52,
+			BYTE: 54,
+			SINT: 56,
+			USINT: 58,
+			WORD: 60,
+			INT: 62,
+			UINT: 64,
+			DWORD: 66,
+			DINT: 68,
+			UDINT: 70,
+			LWORD: 72,
+			LINT: 74,
+			ULINT: 76,
+			REAL: 78,
+			LREAL: 80,
+			CHAR: 82,
+			WCHAR: 84,
+			STRING: 86,
+			WSTRING: 88,
+			TIME: 90,
+			LTIME: 92,
+			DATE_AND_TIME: 94,
+			LDATE_AND_TIME: 96,
+			DATE: 98,
+			LDATE: 100,
+			TIME_OF_DAY: 102,
+			LTIME_OF_DAY: 104,
+			BIT: 106,
+			ANY: 108,
+			ANY_DATE: 110,
+			ANY_BIT: 112,
+			ANY_NUM: 114,
+			ANY_REAL: 116,
+			ANY_INT: 118,
+			ANY_STRING: 120,
+			UCHAR: 122,
+			USTRING: 124,
+			POINTER: 126,
+			TO: 128,
+			REFERENCE: 130,
+			ARRAY: 132,
+			SUPER: 136,
+			THIS: 138,
+			TRUE: 150,
+			FALSE: 150,
+			NOT: 162,
+			MOD: 170,
+			AND: 174,
+			OR: 176,
+			AND_THEN: 178,
+			OR_ELSE: 180,
+			XOR: 182,
+			'REF=': 200,
+			OF: 212,
+			END_VAR: 216,
+			TYPE: 220,
+			EXTENDS: 222,
+			STRUCT: 224,
+			END_STRUCT: 226,
+			END_TYPE: 228,
+			UNION: 230,
+			END_UNION: 232,
+			PROGRAM: 234,
+			METHOD: 240,
+			IF: 246,
+			THEN: 248,
+			ELSIF: 250,
+			ELSE: 252,
+			END_IF: 254,
+			CASE: 258,
+			END_CASE: 260,
+			FOR: 264,
+			BY: 266,
+			DO: 268,
+			END_FOR: 270,
+			WHILE: 272,
+			END_WHILE: 274,
+			REPEAT: 276,
+			UNTIL: 278,
+			END_REPEAT: 280,
+			RETURN: 284,
+			EXIT: 286,
+			CONTINUE: 288,
+			JMP: 292,
+			END_METHOD: 298,
+			PROPERTY_GET: 304,
+			PROPERTY_SET: 306,
+			PUBLIC: 308,
+			PRIVATE: 310,
+			INTERNAL: 312,
+			PROTECTED: 314,
+			FINAL: 316,
+			END_PROPERTY: 318,
+			END_PROGRAM: 320,
+			FUNCTION: 324,
+			END_FUNCTION: 326,
+			FUNCTION_BLOCK: 330,
+			IMPLEMENTS: 332,
+			END_FUNCTION_BLOCK: 334,
+			INTERFACE: 338,
+			END_INTERFACE: 340,
+		},
+		be = Pt.deserialize( {
+			version: 14,
+			states: "GSQ`QPOOO(YQPO'#CuOOQO'#Gd'#GdO(dQPO'#DtOOQO'#D{'#D{O(iQPO'#DzOOQO'#EO'#EOO(iQPO'#D}O+qQPO'#FeO,lQPO'#E]O&`QPO'#GjOOQO'#Gj'#GjOOQO'#Ek'#EkOOQO'#FT'#FTOOQO'#Ff'#FfOOQO'#HS'#HSOOQO'#Ca'#CaOOQO'#F}'#F}Q`QPOOO,qQPO'#CbO-SQPO'#EmO-XQPO'#G|O-^QPO'#EwO(iQPO'#EzO(iQPO'#FQO-cQPO'#HUO(iQPO'#HVO-nQPO'#HWO&ZQPO'#F_O.eQPO'#FcO.jQPO'#EvO0PQPO'#FiO0eQPO'#FhO1zQPO'#HRO-^QPO'#FsO2PQPO'#HYO-SQPO'#FvO3fQPO'#HZO-SQPO'#FzO5UQPO'#H[OOQO'#Ea'#EaOOQO'#Eb'#EbOOQO'#Ec'#EcO(iQPO,5:zO5^QPO,5:zO5iQPO,5:`O6lQPO,5:fO6sQPO,5:iOOQO'#ER'#EROOQO'#ES'#ESO(iQPO,5:lO(iQPO,5:lO(iQPO,5:lO(iQPO,5:lO7mQQO'#EfOOQO,5;P,5;POOQO,5<P,5<POOQO'#EU'#EUOOQO'#E_'#E_O7wQPO'#GQO7|QPO,5:wOOQO-E9{-E9{OOQO'#GO'#GOO9yQPO,58|O:[QPO'#CqOOQO'#GP'#GPO:dQPO,58|OOQO'#G_'#G_OOQO,58|,58|OOQO'#Cu'#CuO:lQPO,5;XOOQO'#Ct'#CtO=^QPO,5=hOOQO'#Ey'#EyO=kQPO,5;cOBXQPO,5;fOB`QPO,5;lOBgQPO'#E^OBxQPO'#E`OCWQPO,5=pOC]QPO,5=qOOQO'#GW'#GWOCdQPO,5=rO(iQPO,5=rOOQO,5;y,5;yO&ZQPO,5;}OOQO'#GV'#GVODZQPO,5;bOOQO,5;b,5;bOOQO'#HX'#HXO-XQPO,5<TO-^QPO,5<TOEpQPO,5<SOGVQPO,5<SOG[QPO,5=mOHzQPO,5<_OMhQPO,5=tOOQO,5=t,5=tON}QPO,5<bOOQO'#GU'#GUO!%wQPO,5=uOOQO,5=u,5=uOOQO,5<f,5<fOOQO'#GZ'#GZO!'gQPO,5=vOOQO,5=v,5=vO!'oQPO1G0fO(iQPO1G0fOOQO1G/z1G/zOOQO1G/|1G/|OOQO1G0O1G0OOOQO'#D|'#D|OOQO1G0Q1G0QO!)|QPO1G0WO!*ZQPO1G0WO!+uQPO1G0WO!,YQPO1G0WO!,mQPO'#GvO(iQPO'#GvO!,wQPO,5;QOOQO,5<l,5<lOOQO-E:O-E:OOOQO-E9|-E9|O!,|QPO1G.hOOQO1G.h1G.hO!-UQPO,59]O!/wQPO,59]OOQO-E9}-E9}O-SQPO1G0sO!/|QPO1G3SO!0XQPO1G3TO!0dQPO1G3UO!0kQPO1G3WO!0pQPO1G0}O!3`QPO1G1QO!4]QPO1G1WO(iQPO1G3[O!4gQPO1G3]OOQO-E:U-E:UO(iQPO1G3^O!5^QPO1G3^OOQO1G1i1G1iOOQO-E:T-E:TOOQO1G0|1G0|O!0pQPO1G1oO-XQPO1G1oO!5eQPO1G1nOOQO1G1n1G1nO!5jQPO1G3XOOQO1G3X1G3XO!0pQPO1G1yOOQO1G3`1G3`O-SQPO1G1|O-SQPO1G1|OOQO-E:S-E:SOOQO1G3a1G3aOOQO-E:X-E:XOOQO1G3b1G3bO!7YQPO7+&QOOQO'#Eg'#EgO!8SQQO'#GRO!8ZQPO,5=bO!8cQPO,5=bOOQO1G0l1G0lOOQO7+$S7+$SO!8mQPO1G.wO!8uQPO'#GeO!8zQPO'#GfO!9PQPO'#GgO!9UQSO'#G`O-XQPO1G.wOOQO7+&_7+&_O!9ZQPO7+(nOOQO7+(n7+(nO!9aQPO7+(nO!9fQPO7+(oOOQO7+(o7+(oO!9qQPO7+(oO!9vQPO'#HPO!,wQPO7+(pOOQO7+(r7+(rOOQO7+&i7+&iO!:QQPO7+&lO!:}QPO7+&lO(iQPO'#GXOOQO7+&l7+&lO!;YQPO7+&lO!<PQPO'#HTOOQO'#GY'#GYO!<WQPO7+&rOOQO7+&r7+&rO!<bQPO7+&rO!=XQPO7+(vO!=cQPO7+(wOOQO7+(w7+(wO!>YQPO7+(xOOQO7+(x7+(xOOQO7+'Z7+'ZO!0pQPO7+'ZOOQO7+'Y7+'YOOQO7+(s7+(sOOQO7+'e7+'eOOQO7+'h7+'hO!>aQPO7+'hO!CWQPO,5<mO(iQPO,5<mOOQO-E:P-E:PO!CbQPO1G2|OOQO7+$c7+$cO(iQPO7+$cO!CjQPO,5=PO!CjQPO,5=QOOQO'#Dq'#DqO!FSQPO,5=RO!FZQPO,5<zO!-UQPO7+$cOOQO<<LY<<LYO!F`QPO<<LYOOQO<<LZ<<LZO!FeQPO<<LZO(iQPO'#GTO!FjQPO,5=kO&ZQPO<<L[O!FrQPO<<JWOOQO<<JW<<JWO!F}QPO<<JWOOQO-E:V-E:VO!GtQPO,5<sO!F}QPO<<JWO!HmQPO,5=oOOQO-E:W-E:WOOQO<<J^<<J^O!K}QPO<<J^O!K}QPO<<J^O!LtQPO<<LbO(iQPO<<LbOOQO<<Lc<<LcOOQO<<Ld<<LdOOQO<<Ju<<JuO-SQPO<<KSO!MkQPO1G2XO+qQPO<<G}OOQO1G2k1G2kOOQO1G2l1G2lO!MuQPO'#GiO!M|QPO1G2mOOQO1G2f1G2fO!8mQPO<<G}OOQOANAtANAtOOQOANAuANAuO!NRQPO,5<oOOQO-E:R-E:RO!N]QPOANAvOOQOAN?rAN?rO!NbQPOAN?rO!NbQPOAN?rO# XQPO1G2_O#!UQPO1G3ZO#%fQPOAN?xOOQOAN?xAN?xO#&]QPOANA|OOQOANA|ANA|O#'SQPOANA|OOQOAN@nAN@nOOQOAN=iAN=iOOQO'#Eh'#EhO(iQPO,5=TOOQO'#Ei'#EiO#'ZQPO7+(XO(iQPOAN=iOOQOG27bG27bO#'`QPOG25^OOQOG25^G25^O#(VQPO7+'yOOQOG25dG25dOOQOG27hG27hO#)SQPOG27hO#)yQPO1G2oO!CjQPO<<KsO+qQPOG23TOOQOLD*xLD*xO#*TQPOLD-SOOQOLD-SLD-SO(iQPO'#GSO#*zQPO7+(ZOOQOANA_ANA_OOQOLD(oLD(oOOQO!$(!n!$(!nO!MuQPO,5<nOOQO-E:Q-E:QO(iQPO1G2YO#+SQPO7+'t",
+			stateData:
+				"#+e~O%QOSPOSQOSROS~OVPOWcOXcOYcOZcO[cO]cO^cO_cO`cOacOgZOjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO!fYO!gYO!iZO!kZO!mZO!sVO#bdO#iqO#lfO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$^oO$_oO$hrO$ktO$ovO%`SO%bUO%cUO%o[O~O#W{O%gxO%hyO%izO!w%^X!y%^X!z%^X!{%^X!|%^X!}%^X#O%^X%`%^X%b%^X%c%^X%d%^X%e%^X%o%^X%a%^X#p%^X#^%^X#z%^X%l%^X$Q%^X%V%^X!b%^X#y%^X%m%^X%n%^X~O%_iX%f#QX~P&`O%_}O~OVPOgZOjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO!fYO!gYO!iZO!kZO!mZO!sVO%`SO%bUO%cUO~O!w!SO!y!ZO!z!ZO!{!ZO!|!ZO!}!ZO#O!VO%`SO%bUO%cUO%d!QO%e!RO%o[O~O%f![O~OV!bOb!eOc!eOd!eO#`!fO~OV!gO~O%V!iO~OV!kO~OV!oO!f!pO!g!pO~O#ogO#uhO#xiO#|jO$OkO$P!uO$SlO$TlO$UlO$WmO%o[O~P(iOV!wO~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$Z!zO%o[O~P(iOV!kO$`!{O$a!{O$b!{O$c!{O$d!{O~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$Z#PO%o[O~P(iOV#QO~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$i#TO%o[O~P(iOWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#lfO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$^oO$_oO$m#XO%o[O~P(iO#lfO$p#]O~O#W#_O%hyO%izO~Og#`O!i#aO!k#bO~O!w!SO!y!ZO!z!ZO!{!ZO!|!ZO!}!ZO#O!VO%`SO%bUO%cUO%d!QO%e!RO~O%a#cO~P5tO%o!qa%a!qa#p!qa#^!qa#z!qa%l!qa$Q!qa%V!qa!b!qa#y!qa%m!qa%n!qa~P5tO%k#jO%a%jP~P(iOV#lO~O%f![O!w#Pa!y#Pa!z#Pa!{#Pa!|#Pa!}#Pa#O#Pa#W#Pa%`#Pa%b#Pa%c#Pa%d#Pa%e#Pa%g#Pa%h#Pa%i#Pa%o#Pa%a#Pa#p#Pa#^#Pa#z#Pa%l#Pa$Q#Pa%V#Pa!b#Pa#y#Pa%m#Pa%n#Pa~OV!bOb!eOc!eOd!eO#`#pO~Of#rO%V!iO~OV!bO#`#pO~O#c#tO%V#aa~OjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO%`SO~OV!gO#d#uO#g#vO~P:tO%V!iOV#kaW#kaX#kaY#kaZ#ka[#ka]#ka^#ka_#ka`#kaa#kag#kaj#kak#kal#kam#kan#kao#kap#kaq#kar#kas#kat#kau#kav#kaw#kax#kay#kaz#ka{#ka|#ka}#ka!O#ka!P#ka!Q#ka!R#ka!S#ka!T#ka!U#ka!V#ka!W#ka!X#ka!Y#ka!Z#ka![#ka!]#ka!^#ka!_#ka!`#ka!f#ka!g#ka!i#ka!k#ka!m#ka!s#ka#o#ka#u#ka#x#ka#|#ka$O#ka$S#ka$T#ka$U#ka$W#ka$Z#ka%`#ka%b#ka%c#ka%o#ka~O#p#zO~P5tO#^#{O~P5tO#W{O%gxO%hyO%izO%f#QX~O#W{O%gxO%hyO%izO~O!b#|O~O#z#}O~P5tO#ogO#uhO#xiO#|jO$OkO$P$PO$SlO$TlO$UlO$WmO%o[O~P(iOWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$Z$TO%o[O~P(iOWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$Z$WO%o[O~P(iO$e$XO~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#lfO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$^oO$_oO$f$ZO%o[O~P(iO%V!iOV$gaW$gaX$gaY$gaZ$ga[$ga]$ga^$ga_$ga`$gaa$gag$gaj$gak$gal$gam$gan$gao$gap$gaq$gar$gas$gat$gau$gav$gaw$gax$gay$gaz$ga{$ga|$ga}$ga!O$ga!P$ga!Q$ga!R$ga!S$ga!T$ga!U$ga!V$ga!W$ga!X$ga!Y$ga!Z$ga![$ga!]$ga!^$ga!_$ga!`$ga!f$ga!g$ga!i$ga!k$ga!m$ga!s$ga#o$ga#u$ga#x$ga#|$ga$O$ga$S$ga$T$ga$U$ga$W$ga$i$ga%`$ga%b$ga%c$ga%o$ga~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$i$]O%o[O~P(iO#c$_O$l$^OV$jaW$jaX$jaY$jaZ$ja[$ja]$ja^$ja_$ja`$jaa$jag$jaj$jak$jal$jam$jan$jao$jap$jaq$jar$jas$jat$jau$jav$jaw$jax$jay$jaz$ja{$ja|$ja}$ja!O$ja!P$ja!Q$ja!R$ja!S$ja!T$ja!U$ja!V$ja!W$ja!X$ja!Y$ja!Z$ja![$ja!]$ja!^$ja!_$ja!`$ja!f$ja!g$ja!i$ja!k$ja!m$ja!s$ja#l$ja#o$ja#u$ja#x$ja#|$ja$O$ja$S$ja$T$ja$U$ja$W$ja$^$ja$_$ja$m$ja%`$ja%b$ja%c$ja%o$ja~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#lfO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$^oO$_oO$m$aO%o[O~P(iO#lfO$p$cO~O%o#Si%a#Si#p#Si#^#Si!b#Si#z#Si%l#Si$Q#Si%V#Si#y#Si%m#Si%n#Si~P5tO%`SO!y!ti!z!ti!{!ti!|!ti!}!ti#O!ti%b!ti%c!ti%o!ti%a!ti#p!ti#^!ti#z!ti%l!ti$Q!ti%V!ti!b!ti#y!ti%m!ti%n!ti~O!w!ti%d!ti%e!ti~P!(iO!w!SO%d!QO%e!RO~P!(iO!w!SO%`SO%bUO%cUO%d!QO%e!RO#O!ti%o!ti%a!ti#p!ti#^!ti#z!ti%l!ti$Q!ti%V!ti!b!ti#y!ti%m!ti%n!ti~O!y!ti!z!ti!{!ti!|!ti!}!ti~P!*hO!y!ZO!z!ZO!{!ZO!|!ZO!}!ZO~P!*hO%l$eO%a%jX~P5tO%a#cO~OV!bO#`$jO~OV!gOjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO!a$lO!c$mO!d$nO~O%T$oO~OV!bO#e$tO#f$sO~OV!bO#f$vO#h$wO~O%a%sP~P(iO#f$zO~OV!gOjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO!a$lO!c$mO~O#ogO#q%OO#r%QO#s%PO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#r%VO#v%UO~P(iO#ogO#uhO#xiO#|jO#}%YO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO$Q%[O~P5tO$e%_O~OWcOXcOYcOZcO[cO]cO^cO_cO`cOacO#lfO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO$^oO$_oO$f%`O%o[O~P(iO%o#Sq%a#Sq#p#Sq#^#Sq!b#Sq#z#Sq%l#Sq$Q#Sq%V#Sq#y#Sq%m#Sq%n#Sq~P5tO%k%eO~P(iO%l$eO%a%ja~O%l$eO%a%ja~P5tO%hyO%o[O~O!b%jO~O!b%kO~O%[%lO~O%U%nO~OV!bO#e%qO#f%pO~OV!bO#f%rO#h%sO~O#f%rO~O%l$eO%a%sX~P5tO#ogO#q%OO#r%yO#s%xO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#q%OO#r%yO#s%xO~O#ogO#s%xO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO%V!iO~P5tO#r&QO#v&PO~P(iO#ogO#uhO#v&PO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#y&TO#z&SO~P5tO#ogO#uhO#xiO#|jO#}&UO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO$Q&VO~P5tO$l&XOV$jqW$jqX$jqY$jqZ$jq[$jq]$jq^$jq_$jq`$jqa$jqg$jqj$jqk$jql$jqm$jqn$jqo$jqp$jqq$jqr$jqs$jqt$jqu$jqv$jqw$jqx$jqy$jqz$jq{$jq|$jq}$jq!O$jq!P$jq!Q$jq!R$jq!S$jq!T$jq!U$jq!V$jq!W$jq!X$jq!Y$jq!Z$jq![$jq!]$jq!^$jq!_$jq!`$jq!f$jq!g$jq!i$jq!k$jq!m$jq!s$jq#l$jq#o$jq#u$jq#x$jq#|$jq$O$jq$S$jq$T$jq$U$jq$W$jq$^$jq$_$jq$m$jq%`$jq%b$jq%c$jq%o$jq~O%a$ua%l$ua~P5tO%l$eO%a%ji~OV!gOjQOkQOlQOmQOnQOoQOpQOqQOrQOsQOtQOuQOvQOwQOxQOyQOzQO{QO|QO}QO!OQO!PQO!QQO!RQO!SQO!TQO!UQO!VQO!WQO!XQO!YQO!ZQO![QO!]QO!^QO!_QO!`QO~O%n%]P~P(iOg&`O~O#f&bO~O#f&cO~O%l$eO%a%sa~O#q%OO#r&hO#s&gO~O#ogO#s&gO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#p&jO~P5tO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~OV%wag%waj%wak%wal%wam%wan%wao%wap%waq%war%was%wat%wau%wav%waw%wax%way%waz%wa{%wa|%wa}%wa!O%wa!P%wa!Q%wa!R%wa!S%wa!T%wa!U%wa!V%wa!W%wa!X%wa!Y%wa!Z%wa![%wa!]%wa!^%wa!_%wa!`%wa!f%wa!g%wa!i%wa!k%wa!m%wa!s%wa#r%wa#v%wa%`%wa%b%wa%c%wa~P!G{O#ogO#uhO#v&mO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#ogO#uhO#xiO#{&oO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO%a$ui%l$ui~P5tO%m&sO~P5tO%n&uO~O%a$wa%l$wa~P5tO#f&xO~O#ogO#s&zO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O#q${i#r${i#s${i~P(iOV%wig%wij%wik%wil%wim%win%wio%wip%wiq%wir%wis%wit%wiu%wiv%wiw%wix%wiy%wiz%wi{%wi|%wi}%wi!O%wi!P%wi!Q%wi!R%wi!S%wi!T%wi!U%wi!V%wi!W%wi!X%wi!Y%wi!Z%wi![%wi!]%wi!^%wi!_%wi!`%wi!f%wi!g%wi!i%wi!k%wi!m%wi!s%wi#r%wi#v%wi%`%wi%b%wi%c%wi~P!G{O#ogO#uhO#v&|O#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#ogO#uhO#xiO#{&}O#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#z'OO~P5tO#^'QO~O#ogO#s'SO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO#ogO#uhO#xiO#|jO$OkO$SlO$TlO$UlO$WmO%o[O#q${q#r${q#s${q~P(iO#ogO#uhO#xiO#{'UO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO%l$eO%n%]i~P5tO#ogO#uhO#xiO#{'ZO#|jO$OkO$SlO$TlO$UlO$WmO%o[O~P(iO%l$eO%n%]q~O%l$vq%n$vq~P5tOP%dg%f!kV~",
+			goto: "Fg&PPPPPP&Q&UPPPPPPPPPPPPPP&hPP&r'[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP)aPP)dP)dP)dP)d*x-R)d-[P)d/`/`P0PPPPPPP0n2V3l3p5X5_5nP)d5w6i6w6}P7QP8`PPPPPPPP8d8rP8|9YPPPPP9YPP9YPPPPPPPPP9YPPP9YP:Q9YP:v;QPPPPPPPPP;YPP;^PPP;bPP;f;l;r<U<[<f<l<r<|=[>`>j>pPPP>v>zPPP>}ARARAePAkAnPPPPPPPPPPPD`PPPPPDcDcDcDgDcDcDjEhElElElFdDcDcDcTaObS`Ob[!xnps!y#O#SX#Vu#Q#W$Ya!cc!a!d#o#u#v$r$uQ!jeQ#q!bQ#y!lQ$U!|Q$[#RQ%^$VQ%o$pR%}%R$YQOTVbghjknpsu{!S!T!U!V!W!j!t!u!y#O#Q#S#W#_#j#q#w#y#z#{#|#}$P$U$Y$[$f$|%O%Q%T%V%X%^%e%i%j%k%m%o%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'Q'T'V'^Q!hdQ#UtQ#YvQ$q#tQ%b$^Q%c$_R&q&XR%m$n#uZOTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^#tTOTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^!^!WW!O!P!m!n!r#^#e#f#g#h#i$Q$d$h$x%R%W%Z%d%{&Y&Z&^&d&p'P'R'['_R#w!jQ#d!OQ$i#kR%v$y#tVOTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^!Z!TW!O!P!m!n!r#^#g#h#i$Q$d$h$x%R%W%Z%d%{&Y&Z&^&d&p'P'R'['_!]!SW!O!P!m!n!r#^#f#g#h#i$Q$d$h$x%R%W%Z%d%{&Y&Z&^&d&p'P'R'['_!X!UW!O!P!m!n!r#^#h#i$Q$d$h$x%R%W%Z%d%{&Y&Z&^&d&p'P'R'['_#tYOTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^R!pi#wXOTVbghijknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^T!]X!^#tZOTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^R!qiX|PY!o!pW{PY!o!pQ#_|Q%i$kR&w&aW{PY!o!pR#_|!_!XW!O!P!m!n!r#^#e#f#g#h#i$Q$d$h$x%R%W%Z%d%{&Y&Z&^&d&p'P'R'['_W$f#i$g$h%gS%t$x%uT'V'P'WQ&t&^R'^'[R&v&_!j^Obknpsu!t!y#O#Q#S#W#z#}$Y$|%Q%V%X%y%|%}&Q&R&S&h&i&j&k&l&n&y&{'O'TQ!YWQ!vlQ$R!wQ%h$kQ&f%vS&r&Z&aR'Y'RTeObS`ObW#Vu#Q#W$YT#Zw#[anObuw#Q#W#[$YQ!lfQ!|oQ#RrR$V!}!k_Obknpsu!t!y#O#Q#S#W#z#}$Y$|%Q%V%X%y%|%}&Q&R&S&h&i&j&k&l&n&y&{'O'T!g_Obknpsu!t!y#O#Q#S#W#z#}$Y$|%Q%V%X%y%|&Q&R&S&h&i&j&l&n&y&{'O'TS`ObX#Vu#Q#W$Y]pObu#Q#W$YTsObTuObTwObQbOR!_bQ!acR#n!aQ!dcQ#o!aW#s!d#o$r$uQ$r#uR$u#vQ!^XR#m!^Q$g#iS%f$g%gR%g$hQ'W'PR']'WQ%u$xR&e%uQ#WuQ$Y#QT$`#W$YQ!ynQ#OpQ#SsV$S!y#O#SQ!tkh$O!t$|%X%|&R&i&k&l&n&y&{'TQ$|#zQ%X#}Q%|%QQ&R%VQ&i%yQ&k%}Q&l&QQ&n&SQ&y&hQ&{&jR'T'OQ$}#zQ%w$|T%z$}%wQ%T#{R&O%TQ#[wR$b#[T!`c!aR$p#r#tROTVbghjknpsu{!S!T!U!V!W!t!u!y#O#Q#S#W#_#j#w#z#{#|#}$P$Y$f$|%O%Q%T%V%X%e%i%m%t%y%|&Q&R&S&T&h&i&j&l&n&t&w&y&{'O'T'V'^Q#x!jQ$k#qQ${#yQ%]$UQ%a$[Q&W%^Q&[%jQ&]%kQ&a%oR'X'QQ$k#qQ${#yQ%]$UQ%a$[Q&W%^R&a%oQ$k#qR&a%oR&_%m!fWObknpsu!t!y#O#Q#S#W#z#}$Y$|%Q%V%X%y%|&Q&R&S&h&i&j&l&n&y&{'O'TQ!OTQ!PVQ!mgQ!nhQ!rjQ#^{Q#e!SQ#f!TQ#g!UQ#h!VQ#i!WQ$Q!uQ$d#_Q$h#jQ$x#wS%R#{%TQ%W#|Q%Z$PQ%d$fQ%{%OQ&Y%eQ&Z%iQ&^%mQ&d%tQ&p&TQ'P&tQ'R&wQ'['VR'_'^R#k!WT`ObR$y#wSaOb!Q!sk!t#z#}$|%Q%V%X%y%|%}&Q&R&S&h&i&j&k&l&n&y&{'O'T[!xnps!y#O#SX#Vu#Q#W$YT%S#{%T!k]Obknpsu!t!y#O#Q#S#W#z#}$Y$|%Q%V%X%y%|%}&Q&R&S&h&i&j&k&l&n&y&{'O'TR!}o",
+			nodeNames:
+				'⚠ LineComment MultiLineComment Pragma Program Declaration VarDeclaration Identifier DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword ModifierKeyword ModifierKeyword ModifierKeyword VariableDeclarationStatement ModifierKeyword NumericLiteral Punc TypeName TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword TypeKeyword ControlKeyword TypeKeyword TypeKeyword Punc ControlKeyword ControlKeyword TypedNumericLiteral StringLiteral TypedStringLiteral DateTimeLiteral TypedDateTimeLiteral BooleanLiteral ParenthesizedExpression Punc Punc UnaryExpression Operator OperatorKeyword BinaryExpression Operator Operator OperatorKeyword LogicalOp OperatorKeyword OperatorKeyword OperatorKeyword OperatorKeyword OperatorKeyword CompareOp MemberExpression PropertyName Punc AssignmentExpression Operator Operator Operator OperatorKeyword CallExpression ArgList Punc Punc Punc ControlKeyword Punc DeclarationKeyword TypeDecl DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword DeclarationKeyword MethodDeclaration MethDecl DeclarationKeyword CallName IfStatement ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword CaseStatement ControlKeyword ControlKeyword LoopStatement ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword ControlKeyword KeywordStatement ControlKeyword ControlKeyword ControlKeyword JumpStatement ControlKeyword ExpressionStatement EmptyStatement DeclarationKeyword PropertyDeclaration PropDecl DeclarationKeyword DeclarationKeyword ModifierKeyword ModifierKeyword ModifierKeyword ModifierKeyword ModifierKeyword DeclarationKeyword DeclarationKeyword FuncDecl DeclarationKeyword DeclarationKeyword FbDecl DeclarationKeyword DeclarationKeyword DeclarationKeyword ItfDecl DeclarationKeyword DeclarationKeyword',
+			maxTerm: 230,
+			nodeProps: [
+				[
+					'group',
+					-16,
+					7,
+					23,
+					68,
+					69,
+					70,
+					71,
+					72,
+					73,
+					74,
+					75,
+					76,
+					79,
+					82,
+					93,
+					96,
+					101,
+					'Expression',
+					-7,
+					122,
+					128,
+					131,
+					141,
+					145,
+					147,
+					148,
+					'Statement',
+				],
+			],
+			propSources: [ Se ],
+			skippedNodes: [ 0, 1, 2, 3 ],
+			repeatNodeCount: 13,
+			tokenData:
+				"7m~R!QX^$Xpq$Xrs$|st%quv%vwx$|xy%{yz&xz{&}{|'S|}'X}!O'^!O!P'c!P!Q)R!Q!R)r!R!S*W!S!T+{!T!Y)r!Y!Z-O!Z![)r![!]-{!]!^.Y!^!_._!_!`.w!`!a.o!c!f/X!f!g/j!g!k/X!k!l1|!l!n/X!n!o2a!o!v/X!v!w3O!w!}/X!}#O6o#P#Q6t#Q#R6y#R#S/X#T#o/X#o#p7O#y#z$X$f$g$X#BY#BZ$X$IS$I_$X$I|$JO$X$JT$JU$X$KV$KW$X&FU&FV$X~$^Y%Q~X^$Xpq$X#y#z$X$f$g$X#BY#BZ$X$IS$I_$X$I|$JO$X$JT$JU$X$KV$KW$X&FU&FV$X~%PVOr$|rs%fsw$|wx%fx;'S$|;'S;=`%k<%lO$|~%kO!i~~%nP;=`<%l$|~%vO%_~~%{O%T~~&QP%`~z{&T~&WTOz&Tz{&g{;'S&T;'S;=`&r<%lO&T~&jPyz&m~&rOQ~~&uP;=`<%l&T~&}O%a~~'SO%e~~'XO%b~~'^O%l~~'cO%c~~'hQ%fP!O!P'n!Q!['{R'sP%mP!O!P'vQ'{O%kQ~(QSg~!Q!['{!g!h(^#R#S'{#X#Y(^~(aS{|(m}!O(m!Q![(v#R#S(v~(pQ!Q![(v#R#S(v~({Qg~!Q![(v#R#S(v~)WP%d~!P!Q)Z~)`SP~OY)ZZ;'S)Z;'S;=`)l<%lO)Z~)oP;=`<%l)Z~)wTg~!O!P'{!Q![)r!g!h(^#R#S)r#X#Y(^~*]Vg~!O!P'{!Q!W)r!W!X*r!X![)r!g!h(^#R#S)r#X#Y(^~*wUg~st+Z!O!P'{!Q![)r!g!h(^#R#S)r#X#Y(^~+^S!Q![+j!c!i+j#R#S+j#T#Z+j~+oSg~!Q![+j!c!i+j#R#S+j#T#Z+j~,QUg~st,d!O!P'{!Q![)r!g!h(^#R#S)r#X#Y(^~,gR!Q!R,p!R!S,p#R#S,p~,uRg~!Q!R,p!R!S,p#R#S,p~-TUg~st-g!O!P'{!Q![)r!g!h(^#R#S)r#X#Y(^~-jQ!Q!Y-p#R#S-p~-uQg~!Q!Y-p#R#S-p~.QP%V~!_!`.T~.YO%h~~._O%o~~.dQ#O~!_!`.j!`!a.o~.oO#O~~.tP#O~!_!`.j~.|Q#O~!_!`.j!`!a/S~/XO%i~R/^SVR!Q![/X!c!}/X#R#S/X#T#o/X~/oVVRst0U!Q![/X!c!v/X!v!w0p!w!}/X#R#S/X#T#o/X~0XR}!O0b!Q![0b#R#S0b~0gR!k~}!O0b!Q![0b#R#S0b~0uTVRst1U!Q![/X!c!}/X#R#S/X#T#o/X~1XT}!O1h!O!P1h!Q![1h![!]1h#R#S1h~1mT!k~}!O1h!O!P1h!Q![1h![!]1h#R#S1hV2TS%USVR!Q![/X!c!}/X#R#S/X#T#o/X~2fWVR!Q![/X!c!f/X!f!g/j!g!v/X!v!w3O!w!}/X#R#S/X#T#o/X~3TVVRst3j!Q![/X!c!q/X!q!r5Q!r!}/X#R#S/X#T#o/X~3mY!Q![4]!f!g4]!j!k4]!o!p4]!u!v4]#R#S4]#W#X4]#[#]4]#a#b4]#g#h4]~4bY!k~!Q![4]!f!g4]!j!k4]!o!p4]!u!v4]#R#S4]#W#X4]#[#]4]#a#b4]#g#h4]~5VUVR!Q![/X!c!f/X!f!g5i!g!}/X#R#S/X#T#o/X~5nTVRst5}!Q![/X!c!}/X#R#S/X#T#o/X~6QS!O!P6^!Q![6^![!]6^#R#S6^~6cS!k~!O!P6^!Q![6^![!]6^#R#S6^~6tO%[~~6yO%n~~7OO%g~~7RTO#q7O#q#r7b#r;'S7O;'S;=`7g<%lO7O~7gOR~~7jP;=`<%l7O",
+			tokenizers: [ 0, 1, 2 ],
+			topRules: { Program: [ 0, 4 ] },
+			specialized: [ { term: 7, get: ( o ) => xe[ o ] || -1 } ],
+			tokenPrec: 4706,
+		} ),
+		Te = Vt( [
+			{ tag: h.controlKeyword, class: 'token keyword control-flow' },
+			{ tag: h.operatorKeyword, class: 'token keyword' },
+			{ tag: h.definitionKeyword, class: 'token keyword' },
+			{ tag: h.modifier, class: 'token keyword' },
+			{ tag: h.typeName, class: 'token class-name' },
+			{ tag: h.number, class: 'token number' },
+			{ tag: h.bool, class: 'token boolean' },
+			{ tag: h.string, class: 'token string' },
+			{ tag: h.annotation, class: 'token cdata' },
+			{ tag: h.operator, class: 'token operator' },
+			{ tag: h.punctuation, class: 'token punctuation' },
+			{ tag: h.separator, class: 'token operator' },
+			{ tag: h.comment, class: 'token comment' },
+			{ tag: h.name, class: 'token variable' },
+			{ tag: h.function( h.name ), class: 'token function' },
+			{ tag: h.propertyName, class: 'token property' },
+		] );
+	function je( o, t, e ) {
+		let i = '';
+		return (
+			ue(
+				o,
+				t,
+				e,
+				( r, n ) => {
+					n
+						? ( i += `<span class="${ n }">${ Lt( r ) }</span>` )
+						: ( i += Lt( r ) );
+				},
+				() => {
+					i += '<br/>';
+				}
+			),
+			i
+		);
+	}
+	function Lt( o ) {
+		return o.replace(
+			/[&<>"']/g,
+			( t ) =>
+				( {
+					'&': '&amp;',
+					'<': '&lt;',
+					'>': '&gt;',
+					'"': '&quot;',
+					"'": '&#39;',
+				} )[ t ]
+		);
+	}
+	( window.highlightCodeBlocks = function () {
+		document
+			.querySelectorAll( 'code.language-phioiecst' )
+			.forEach( ( o ) => {
+				const t = o.textContent,
+					e = be.parse( t ),
+					i = je( t, e, Te );
+				o.innerHTML = i;
+			} );
+	} ),
+		window.addEventListener( 'DOMContentLoaded', () => {
+			window.highlightCodeBlocks();
+		} );
+} )();
