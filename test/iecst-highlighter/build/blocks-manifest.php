@@ -8,8 +8,19 @@ return array(
 		'version' => '0.1.0',
 		'title' => 'IECST Highlighter',
 		'category' => 'widgets',
-		'icon' => 'code',
-		'description' => 'IEC 61131-3 Structured Text Highlighter',
+		'icon' => 'editor-code',
+		'description' => 'A syntax highlighter for the IEC 61131-3 structured text language',
+		'attributes' => array(
+			'content' => array(
+				'type' => 'string',
+				'source' => 'text',
+				'selector' => 'code'
+			),
+			'cssStyle' => array(
+				'type' => 'string',
+				'default' => 'default.css'
+			)
+		),
 		'example' => array(
 			
 		),
@@ -19,7 +30,6 @@ return array(
 		'textdomain' => 'iecst-highlighter',
 		'editorScript' => 'file:./index.js',
 		'editorStyle' => 'file:./index.css',
-		'style' => 'file:./style-index.css',
 		'viewScript' => 'file:./view.js'
 	)
 );
