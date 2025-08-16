@@ -4,7 +4,7 @@ This project provides provides a free and open-source implementation of an LR Pa
 
 This project includes :
 - LR Parser and Syntax Highlighter `./highlight` the output of which is hosted at highlighter.phioautomation.com
-- A Wordpress plugin : https://wordpress.org/plugins/search/iecst-highlighter
+- A Wordpress plugin, available at wordpress.org : https://wordpress.org/plugins/iecst-highlighter/
 - Additional framework samples to demonstrate usage of the highlighter
 
 To view a working example visit : https://phioautomation.com/highlighter
