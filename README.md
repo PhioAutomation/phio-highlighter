@@ -1,5 +1,17 @@
-# phio-highlighter-samples
-A set of examples for using the Phio Highlighter for IEC 61131-3 Structured Text syntax highlighting
+# phio-highlighter
+
+This project provides provides a free and open-source implementation of an LR Parser generated using the [Lezer](https://github.com/lezer-parser/generator) parser generator for the IEC 61131-3 Structured Text programming language that can be used to perform syntax highlighting.
+
+This project includes :
+- LR Parser and Syntax Highlighter `./highlight` the output of which is hosted
+- A Wordpress plugin : https://wordpress.org/plugins/search/iecst-highlighter
+- Additional framework samples to demonstrate usage of the highlighter
+
+To view a working example visit : https://phioautomation.com/highlighter
+
+## Build and Deploy
+
+`npm run build` in the `highlighter` directory will build all files into the `dist` directory. These are hosted at highlighter.phioautomation.com and automatically updated on a merge to the `main` branch.
 
 ## HTML Embed
 
@@ -45,16 +57,6 @@ scaffold the database and then configure WordPress. This will result in a new (i
 Copy the `iecst-highlighter` folder into the `wordpress/wordpress/wp-content/plugins` directory.
 
 Activate the Plugin.
-
-In the editor, you should now see the IEC Structured Text Highlighter block.
-
-![Block](/wordpress/block.png)
-
-After the Page is saved, the runtime will display highlighted code blocks.
-
-![Highlight](/wordpress/runtime.png)
-
-The `iecst-highlighter/highlighter/themes/default.css` will define the styling of the code blocks.
 
 ## Vue
 

@@ -1,0 +1,20 @@
+{
+  "name": "embed",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@lezer/common": "^1.0.0",
+    "@lezer/highlight": "^1.2.0",
+    "@lezer/lr": "^1.0.0",
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "@rollup/plugin-terser": "^0.4.4"
+  }
+}

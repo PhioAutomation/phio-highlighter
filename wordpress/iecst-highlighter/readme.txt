@@ -1,12 +1,22 @@
 === IECST Highlighter ===
-Contributors:      Andrew Parman
-Tags:              block
+Contributors:      aparman
+Tags:              code, syntax, highlight
 Tested up to:      6.8
 Stable tag:        0.1.0
 License:           GPL-2.0-or-later
-License URI:       https://github.com/PhioAutomation/phio-highlighter-samples/blob/main/LICENSE
+License URI:       https://github.com/PhioAutomation/phio-highlighter/blob/main/LICENSE
 
 Display beautiful code snippets using the Phio Highlighter for IEC 61131-3 Structured Text
+
+== Description ==
+
+This plugin adds a Gutenberg block called `IECST Highlighter`. After entering a code snippet in the editor,
+the output will be rendered with a syntax highlighting style selected in the IECST Highlighter Settings.
+
+This plugin uses the [Phio Highlighter](https://github.com/PhioAutomation/phio-highlighter) which is distributed
+with an MIT License, https://highlighter.phioautomation.com/license.txt.
+
+Development of this plugin is 
 
 == Installation ==
 
