@@ -3,7 +3,7 @@
 This project provides provides a free and open-source implementation of an LR Parser generated using the [Lezer](https://github.com/lezer-parser/generator) parser generator for the IEC 61131-3 Structured Text programming language that can be used to perform syntax highlighting.
 
 This project includes :
-- LR Parser and Syntax Highlighter `./highlight` the output of which is hosted
+- LR Parser and Syntax Highlighter `./highlight` the output of which is hosted at highlighter.phioautomation.com
 - A Wordpress plugin : https://wordpress.org/plugins/search/iecst-highlighter
 - Additional framework samples to demonstrate usage of the highlighter
 
