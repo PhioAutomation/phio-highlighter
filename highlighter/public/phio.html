@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Embed Test</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-vsc-dark-plus.min.css" integrity="sha512-ML8rkwYTFNcblPFx+VLgFIT2boa6f8DDP6p6go4+FT0/mJ8DCbCgi6S0UdjtzB3hKCr1zhU+YVB0AHhIloZP8Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<body>
+  <script src="https://highlighter.phioautomation.com/iecst.js"></script>
+    <pre id="code-block" class="language-phioiecst"><code class="language-phioiecst">// This is a Test
+{'this is a prama'}
+
+// Single Line Comment
+
+(* This is a block comment
+    that spans multiple lines
+ *)
+
+// Integer and BitString Literals
+0, - 1, 10_000, 2#0101010, 8#0123456, 16#123abcDEF_000
+
+// Decimal Literals
+0.123, - 5.0, 1.0e - 9, 3.5E10, 100000.0
+
+// String Literals
+'a', 'This is a string', "b", "This is a WString"
+
+// Date Time Literals
+T#5s, LT#5m_10ms
+D#2024 - 01 - 03, LD#2024 - 01 - 0
+DT#2024 - 01 - 05: 12: 45: 23.123, LDT#2024 - 01 - 05: 12: 45: 23.123,
+TOD#12: 45: 23.123, LTOD#12: 45: 23.123
+
+// Boolean Literals
+TRUE, FALSE
+
+// Operators
+a + b
+a - b
+a NOT b
+a := b
+a => b
+a + = b
+a - = b
+a * = b
+a / = b
+a ** b
+a * b
+a / b
+a MOD b
+a = b
+a <> b
+a < b
+a <= b
+a > b
+a >= b
+a AND b
+a OR b
+a XOR b
+a AND_THEN b
+a OR_ELSE b
+a REF = b
+
+
+// Types
+a: BOOL;
+a: BYTE;
+a: SINT;
+a: USINT;
+a: WORD;
+a: INT;
+a: UINT;
+a: DWORD;
+a: DINT;
+a: UDINT;
+a: LWORD;
+a: LINT;
+a: ULINT;
+a: REAL;
+a: LREAL;
+a: CHAR;
+a: WCHAR;
+a: STRING;
+a: WSTRING;
+a: TIME;
+a: LTIME;
+a: DATE_AND_TIME;
+a: LDATE_AND_TIME;
+a: DATE;
+a: LDATE;
+a: TIME_OF_DAY;
+a: LTIME_OF_DAY;
+a: ARRAY[0..1] OF INT;
+a: BIT;
+a: POINTER TO REAL;
+a: REFERENCE TO INT;
+a: ANY;
+a: ANY_BIT;
+a: ANY_DATE;
+a: ANY_NUM;
+a: ANY_REAL;
+a: ANY_INT;
+a: ANY_STRING;
+
+// Control Keywords
+IF a THEN
+    b := 2;
+ELSIF NOT a
+    b := 3;
+ELSE
+    b := 4;
+END_IF;
+
+FOR i := 1 TO 10 BY 1 DO
+    b + = 1;
+    IF b > 2 THEN
+        EXIT;
+    ELSE
+        CONTINUE;
+    END_IF;
+END_FOR;
+
+CASE b OF
+    0:
+        b := 0;
+    MY_CONSTANT:
+        b := 1;
+    ELSE
+        b := 2;
+END_CASE;
+
+WHILE i < 5 DO
+    i := i + 1;
+END_WHILE;
+
+REPEAT
+    i := i + 1;
+UNTIL i > 5
+END_REPEAT;
+
+RETURN;
+JMP;
+
+// Declaration Keywords
+VAR
+VAR_INPUT
+VAR_IN_OUT
+VAR_OUTPUT
+VAR_TEMP
+VAR_CONFIG
+VAR_EXTERNAL
+VAR_INST
+VAR_STAT
+END_VAR
+
+METHOD
+END_METHOD
+PROPERTY_GET
+PROPERTY_SET
+TYPE
+END_TYPE
+STRUCT
+END_STRUCT
+UNION
+END_UNION
+
+FUNCTION
+END_FUNCTION
+FUNCTION_BLOCK
+END_FUNCTION_BLOCK
+PROGRAM
+END_PROGRAM
+INTERFACE
+END_INTERFACE
+
+IMPLEMENTS
+EXTENDS
+
+// Modifiers
+PERSISTENT
+RETAIN
+AT
+PUBLIC
+INTERNAL
+PRIVATE
+PROTECTED
+FINAL
+THIS
+SUPER
+CONSTANT
+
+// Calls
+F_MyFunction(a := 10);
+inst.M_MyMethod(a := 10);
+inst(a := 5);
+SUPER^();</code></pre>
+    <p>
+      This is an inline piece of code where I want to use a keyword like <code class="language-phioiecst">VAR</code> or <code class="language-phioiecst">END_VAR</code> to demonstrate syntax highlighting.
+    </p>
+</body>
+</html>
