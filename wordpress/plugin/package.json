@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"description": "A syntax highlighter for the IEC 61131-3 structured text language",
 	"author": "Andrew Parman",
-	"license": "GPL-2.0-or-later",
+	"license": "MIT",
 	"main": "build/index.js",
 	"scripts": {
 		"build": "wp-scripts build --blocks-manifest",
