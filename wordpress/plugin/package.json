@@ -1,6 +1,6 @@
 {
 	"name": "iecst-highlighter",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "A syntax highlighter for the IEC 61131-3 structured text language",
 	"author": "Andrew Parman",
 	"license": "MIT",

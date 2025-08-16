@@ -2,7 +2,7 @@
 Contributors:      aparman
 Tags:              code, syntax, highlight
 Tested up to:      6.8
-Stable tag:        0.1.0
+Stable tag:        0.1.1
 License:           MIT
 
 Display beautiful code snippets using the Phio Highlighter for IEC 61131-3 Structured Text
