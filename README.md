@@ -21,7 +21,7 @@ You can view this hosted at : https://phioautomation.github.io/phio-highlighter-
 
 1. Add the `script` tag
 ```html
-<script src="https://highlighter.phioautomation.com/iecst.js"></script>
+<script src="https://highlighter.phioautomation.com/iecst.min.js"></script>
 ```
 2. Add a stylesheet to for the highlighting style. This can be any Prism style CSS.
 ```html
