@@ -1,5 +1,16 @@
 #!/bin/bash
 
+set -e
+
+# Run the linters and formatters
+npm run format
+npm run lint:css
+
+# Build the project
+npm run build
+
+# Add in the static assets
+
 # Copy all the contents to the /wordpress/wp-content/plugins/iecst-highlighter directory
 # from both the build output and static files
 SRC_BUILD="build"
@@ -16,4 +27,4 @@ cp -r "$SRC_ASSETS"/* "$DEST_PLUGIN/assets"
 cp -r "iecst-highlighter.php" "$DEST_PLUGIN"
 cp -r "readme.txt" "$DEST_PLUGIN"
 
-echo "Copy complete!"
+echo "Build complete!"

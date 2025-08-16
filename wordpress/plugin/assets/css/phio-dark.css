@@ -5,8 +5,8 @@ pre[class="language-phioiecst"] {
 	word-spacing: normal;
 	word-break: normal;
 	word-wrap: normal;
-	color: #000000;
-	background: #fafafa;
+	color: #9cdcfe;
+	background: #1e1e1e;
 	font-family: Menlo, Monaco, Consolas, "Andale Mono", "Ubuntu Mono", "Courier New", monospace;
 	font-size: 1rem;
 	line-height: 1.5;
@@ -38,53 +38,62 @@ pre[class="language-phioiecst"] ::selection {
 
 :not(pre) > code[class="language-phioiecst"] {
 	white-space: normal;
-	padding: .1em .3em;
-	border-radius: .3em;
+	padding: 0.1em 0.3em;
+	border-radius: 0.3em;
 }
 
 pre[class="language-phioiecst"] {
 	padding: 1em;
-	margin: .5em 0;
+	margin: 0.5em 0;
 	overflow: auto;
 }
 
-.token.boolean,
-.token.number,
+.token.boolean {
+	color: #569cd6;
+}
+
+.token.number {
+	color: #b5cea8;
+}
+
 .token.string {
-	color: #A31515
+	color: #ce9178;
 }
 
 .token.comment {
-	color: #008000;
+	color: #6a9955;
 }
 
 /* Pragma */
 .token.cdata {
-	color: #777777
+	color: #aaa;
 }
 
 .token.class-name {
-	color: #2B91AF;
+	color: #4ec9b0;
 }
 
-.token.keyword,
+.token.keyword {
+	color: #569cd6;
+}
+
 .token.keyword.control-flow {
-	color: #0000EE;
+	color: #c586c0;
 }
 
 .token.operator,
 .token.punctuation {
-	color: #000000;
+	color: #d4d4d4;
 }
 
 .token.variable {
-	color: #1A0DAB;
+	color: #9cdcfe;
 }
 
 .token.function {
-	color: #885500;
+	color: #dcdcaa;
 }
 
 .token.property {
-	color: #1A0DAB;
+	color: #79b0df;
 }

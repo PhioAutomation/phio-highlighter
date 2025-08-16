@@ -4,7 +4,7 @@
  * Description:       Display beautiful code snippets using the Phio Highlighter for IEC 61131-3 Structured Text
  * Version:           0.1.0
  * Requires at least: 5.5
- * Requires PHP:      7.0
+ * Requires PHP:      7.4
  * Author:            Andrew Parman
  * License:           MIT
  * Text Domain:       iecst-highlighter
