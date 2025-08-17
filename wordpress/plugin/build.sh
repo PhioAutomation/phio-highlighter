@@ -26,7 +26,7 @@ mkdir -p "$DEST_PLUGIN/assets"
 
 cp -r "$SRC_BUILD"/* "$DEST_PLUGIN/build"
 cp -r "$SRC_ASSETS"/* "$DEST_PLUGIN/assets"
-cp -r "iecst-highlighter.php" "$DEST_PLUGIN"
+cp -r "index.php" "$DEST_PLUGIN"
 cp -r "readme.txt" "$DEST_PLUGIN"
 
 echo "Build complete!"

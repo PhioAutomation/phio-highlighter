@@ -1,6 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 
-export default function save( { attributes } ) {
+export default function Save( { attributes } ) {
 	const { content } = attributes;
 	const blockProps = useBlockProps.save();
 	return (
