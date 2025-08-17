@@ -13,20 +13,23 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly.
 
 class IecstHighlighter {
     function __construct() {
-        add_action('init', array($this, 'registerBlock'));
+        add_action( 'enqueue_block_editor_assets', array( $this, 'registerBlock' ) );
     }
 
     function registerBlock() {
-        wp_register_script(
-            'phio-automation-iecst-highlighter',
+        wp_enqueue_script(
+            'iecst-highlighter-block',
             plugin_dir_url(__FILE__) . 'build/index.js',
-            array('wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor'),
-            filemtime(plugin_dir_path(__FILE__) . 'build/index.js')
+            array('wp-blocks', 'wp-element', 'wp-editor', 'wp-block-editor'),
+            filemtime( plugin_dir_path(__FILE__) . 'build/index.js' )
         );
 
-        register_block_type( __DIR__ . '/build/block.json', array(
-            'editor_script' => 'phio-automation-iecst-highlighter',
-        ) );
+        wp_enqueue_style(
+            'iecst-highlighter-block-editor',
+            plugin_dir_url(__FILE__) . 'build/index.css',
+            array( 'wp-edit-blocks' ),
+            filemtime( plugin_dir_path(__FILE__) . 'build/index.css' )
+        );
     }
 }
 
