@@ -14,6 +14,15 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly.
 class IecstHighlighter {
     function __construct() {
         add_action( 'enqueue_block_editor_assets', array( $this, 'registerBlock' ) );
+        add_action( 'enqueue_block_assets', function() {
+            wp_enqueue_script(
+                'iecst-highlighter-view',
+                plugin_dir_url( __FILE__ ) . 'build/view.js',
+                array(), // Add dependencies if needed
+                filemtime( plugin_dir_path( __FILE__ ) . 'build/view.js' ),
+                true // Load in footer
+            );
+    });
     }
 
     function registerBlock() {
