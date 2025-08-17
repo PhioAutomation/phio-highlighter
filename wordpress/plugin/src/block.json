@@ -1,10 +1,10 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 2,
 	"name": "phio-automation/iecst-highlighter",
 	"version": "0.1.0",
 	"title": "IECST Highlighter",
-	"category": "text",
+	"category": "widgets",
 	"icon": "editor-code",
 	"description": "Display beautiful code snippets using the Phio Highlighter for the IEC 61131-3 Structured Text language",
 	"attributes": {
@@ -14,7 +14,11 @@
 			"selector": "code"
 		}
 	},
-	"example": {},
+	"example": {
+		"attributes": {
+			"content": "// Write your code snippet..."
+		}
+	},
 	"supports": {
 		"html": false
 	},

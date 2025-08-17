@@ -1,8 +1,10 @@
 === IECST Highlighter ===
 Contributors:      aparman
 Tags:              code, syntax, highlight
+Requires at least: 5.6
 Tested up to:      6.8
 Stable tag:        0.1.0
+Requires PHP:      7.0
 License:           MIT
 
 Display beautiful code snippets using the Phio Highlighter for the IEC 61131-3 Structured Text language

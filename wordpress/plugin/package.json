@@ -1,6 +1,6 @@
 {
 	"name": "iecst-highlighter",
-	"version": "0.1.1",
+	"version": "0.1.0",
 	"description": "A syntax highlighter for the IEC 61131-3 structured text language",
 	"author": "Andrew Parman",
 	"license": "MIT",
@@ -9,11 +9,9 @@
 		"build": "wp-scripts build",
 		"format": "wp-scripts format",
 		"lint:css": "wp-scripts lint-style",
-		"lint:js": "wp-scripts lint-js",
-		"packages-update": "wp-scripts packages-update",
-		"start": "wp-scripts start"
+		"lint:js": "wp-scripts lint-js"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^30.21.0"
+		"@wordpress/scripts": "^12.9.0"
 	}
 }
