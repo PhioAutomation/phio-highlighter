@@ -2,6 +2,8 @@
 
 set -e
 
+# Copy the latest highlighter build
+
 # Run the linters and formatters
 npm run format
 npm run lint:css

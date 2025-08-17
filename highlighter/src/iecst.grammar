@@ -1,0 +1,269 @@
+@precedence {
+  member,
+  call,
+  times @left,
+  plus @left,
+  logic @left,
+  rel @left,
+  assign @right
+}
+
+@top Program { (Declaration | statement)* }
+
+// Declarations
+Declaration{
+  VarDeclaration |
+  structDeclaration |
+  unionDeclaration |
+  enumDeclaration |
+  aliasDeclaration |
+  programDeclaration |
+  functionDeclaration |
+  functionBlockDeclaration |
+  MethodDeclaration |
+  PropertyDeclaration |
+  interfaceDeclaration
+}
+
+varModifier { (modKw<"CONSTANT"> | modKw<"PERSISTENT"> | modKw<"RETAIN">) }
+VarDeclaration { 
+  (declKw<"VAR"> | declKw<"VAR_INPUT"> | declKw<"VAR_IN_OUT"> | declKw<"VAR_OUTPUT"> | declKw<"VAR_TEMP"> | 
+  declKw<"VAR_STAT"> | declKw<"VAR_INST"> | declKw<"VAR_GLOBAL"> | declKw<"VAR_EXTERNAL"> | declKw<"VAR_CONFIG">) varModifier*  
+  VariableDeclarationStatement*
+  declKw<"END_VAR"> 
+}
+
+TypeName { Identifier }
+CallName { Identifier }
+
+TypeDecl { declKw<"TYPE"> TypeName (declKw<"EXTENDS"> TypeName)? }
+structDeclaration { 
+  TypeDecl Punc<":"> 
+  declKw<"STRUCT">
+  VariableDeclarationStatement*
+  declKw<"END_STRUCT">?
+  declKw<"END_TYPE"> 
+}
+
+aliasDeclaration { 
+  TypeDecl Punc<":"> dataType
+  declKw<"END_TYPE"> 
+}
+
+unionDeclaration { 
+  TypeDecl Punc<":"> 
+  declKw<"UNION">
+  VariableDeclarationStatement*
+  declKw<"END_UNION">?
+  declKw<"END_TYPE"> 
+}
+
+enumDeclaration { 
+  TypeDecl Punc<":"> Punc<"(">
+  commaSep<expression>
+  Punc<")"> Punc<";">
+  declKw<"END_TYPE"> 
+}
+
+programDeclaration { 
+  declKw<"PROGRAM"> Identifier 
+  (VarDeclaration | MethodDeclaration | PropertyDeclaration | statement)* 
+  declKw<"END_PROGRAM"> 
+}
+
+FuncDecl { declKw<"FUNCTION"> CallName (Punc<":"> (dataType | pointer | reference))? }
+functionDeclaration { 
+  FuncDecl 
+  (VarDeclaration | statement)* 
+  declKw<"END_FUNCTION"> 
+}
+
+FbDecl { declKw<"FUNCTION_BLOCK"> TypeName (declKw<"EXTENDS"> TypeName)? (declKw<"IMPLEMENTS"> TypeName)? }
+functionBlockDeclaration { 
+  FbDecl
+  (VarDeclaration | MethodDeclaration | PropertyDeclaration | statement)* 
+  declKw<"END_FUNCTION_BLOCK"> 
+}
+
+MethDecl { declKw<"METHOD"> CallName (Punc<":"> (dataType | pointer | reference))? }
+MethodDeclaration { 
+  MethDecl
+  (VarDeclaration | statement)* 
+  declKw<"END_METHOD"> 
+}
+
+accessModifier { (modKw<"PUBLIC"> | modKw<"PRIVATE"> | modKw<"INTERNAL"> | modKw<"PROTECTED"> | modKw<"FINAL">) }
+
+PropDecl { (declKw<"PROPERTY_GET"> | declKw<"PROPERTY_SET">) accessModifier? CallName Punc<":"> (dataType | pointer | reference) }
+PropertyDeclaration {
+  PropDecl
+  (VarDeclaration | statement)* 
+  declKw<"END_METHOD"> 
+  declKw<"END_PROPERTY"> 
+}
+
+ItfDecl { declKw<"INTERFACE"> TypeName }
+interfaceDeclaration { 
+  ItfDecl
+  MethodDeclaration* 
+  declKw<"END_INTERFACE"> 
+}
+
+// Statements
+
+statement[@isGroup=Statement] {
+  IfStatement |
+  CaseStatement |
+  LoopStatement |
+  KeywordStatement |
+  JumpStatement { ctrlKw<"JMP"> Identifier Punc<";"> } |
+  ExpressionStatement { expression Punc<";"> } |
+  EmptyStatement { Punc<";"> }
+}
+
+dataType { (TypeName | typeKw<"BOOL"> | typeKw<"BYTE"> | typeKw<"SINT"> |
+ typeKw<"USINT"> | typeKw<"WORD"> | typeKw<"INT"> | typeKw<"UINT"> | typeKw<"DWORD"> |
+ typeKw<"DINT"> | typeKw<"UDINT"> | typeKw<"LWORD"> | typeKw<"LINT"> | typeKw<"ULINT"> |
+ typeKw<"REAL"> | typeKw<"LREAL"> | typeKw<"CHAR"> | typeKw<"WCHAR"> | typeKw<"STRING"> |
+ typeKw<"WSTRING"> | typeKw<"TIME"> | typeKw<"LTIME"> | typeKw<"DATE_AND_TIME"> | 
+ typeKw<"LDATE_AND_TIME"> | typeKw<"DATE"> | typeKw<"LDATE"> | typeKw<"TIME_OF_DAY"> |
+ typeKw<"LTIME_OF_DAY"> | typeKw<"BIT"> | typeKw<"ANY"> | typeKw<"ANY_DATE"> |
+ typeKw<"ANY_BIT"> | typeKw<"ANY_NUM"> | typeKw<"ANY_REAL"> | typeKw<"ANY_INT"> |
+ typeKw<"ANY_STRING">) | typeKw<"UCHAR"> | typeKw<"USTRING"> }
+pointer { typeKw<"POINTER"> ctrlKw<"TO"> dataType }
+reference { typeKw<"REFERENCE"> ctrlKw<"TO"> dataType }
+array { typeKw<"ARRAY"> Punc<"["> commaSep<expression Punc<".."> expression> Punc<"]"> ctrlKw<"OF"> dataType }
+
+address { "%" "I" NumericLiteral }
+VariableDeclarationStatement {
+  Identifier (modKw<"AT"> address)? Punc<":"> (dataType | pointer | reference | array) (Operator<":="> expression)? Punc<";">
+}
+
+IfStatement {
+  ctrlKw<"IF"> expression ctrlKw<"THEN">
+  statement*
+  (ctrlKw<"ELSIF"> expression ctrlKw<"THEN"> statement*)*
+  (ctrlKw<"ELSE"> statement*)?
+  ctrlKw<"END_IF">
+}
+
+caseClause { expression !assign Punc<":"> statement* }
+CaseStatement {
+  ctrlKw<"CASE"> expression ctrlKw<"OF">
+  caseClause*
+  (ctrlKw<"ELSE"> statement*)?
+  ctrlKw<"END_CASE">
+}
+
+LoopStatement { forStatement | whileStatement | repeatStatement }
+forStatement{ 
+  ctrlKw<"FOR"> AssignmentExpression ctrlKw<"TO"> expression (ctrlKw<"BY"> expression)? ctrlKw<"DO"> 
+  statement* 
+  ctrlKw<"END_FOR"> 
+}
+whileStatement{ ctrlKw<"WHILE"> expression ctrlKw<"DO"> statement* ctrlKw<"END_WHILE"> }
+repeatStatement{ ctrlKw<"REPEAT"> statement* ctrlKw<"UNTIL"> expression ctrlKw<"END_REPEAT"> }
+
+KeywordStatement { (ctrlKw<"RETURN"> | ctrlKw<"EXIT"> | ctrlKw<"CONTINUE">) Punc<";"> }
+
+// Expressions
+
+expression[@isGroup=Expression] {
+  ctrlKw<"SUPER"> |
+  ctrlKw<"THIS"> |
+  NumericLiteral |
+  TypedNumericLiteral |
+  StringLiteral |
+  TypedStringLiteral |
+  Identifier |
+  DateTimeLiteral |
+  TypedDateTimeLiteral |
+  @specialize[@name=BooleanLiteral]<Identifier, "TRUE" | "FALSE"> |
+  ParenthesizedExpression |
+  UnaryExpression |
+  BinaryExpression |
+  MemberExpression |
+  AssignmentExpression |
+  CallExpression
+}
+
+TypedNumericLiteral { dataType "#" NumericLiteral }
+TypedStringLiteral { dataType "#" StringLiteral }
+TypedDateTimeLiteral { dataType "#" DateTimeLiteral }
+
+ParenthesizedExpression { Punc<"("> expression Punc<")"> }
+UnaryExpression { (Operator<"+" | "-"> | opKw<"NOT">) expression }
+BinaryExpression {
+  expression !times (Operator<"/"> | Operator<"*"> | opKw<"MOD">) expression |
+  expression !plus Operator<"+" | "-"> expression |
+  expression !logic LogicalOp expression |
+  expression !rel CompareOp expression
+}
+LogicalOp { (opKw<"AND"> | opKw<"OR"> | opKw<"AND_THEN"> | opKw<"OR_ELSE"> | opKw<"XOR"> ) }
+
+PropertyName { Identifier }
+MemberExpression { PropertyName !member (Punc<"."> Identifier)+ }
+
+AssignmentExpression { (Identifier | MemberExpression | ctrlKw<"SUPER"> | ctrlKw<"THIS">) 
+  Operator<"^">? !assign (Operator<":="> | Operator<"=>"> | opKw<"REF=">) expression 
+}
+
+commaSep<content> { (content (Punc<","> content)*)? }
+ArgList { Punc<"("> commaSep<"..."? expression> Punc<")"> }
+CallExpression { expression !call ArgList }
+
+declKw<term> { @specialize[@name=DeclarationKeyword]<Identifier, term> }
+ctrlKw<term> { @specialize[@name=ControlKeyword]<Identifier, term> }
+typeKw<term> { @specialize[@name=TypeKeyword]<Identifier, term> }
+opKw<term> { @specialize[@name=OperatorKeyword]<Identifier, term> }
+modKw<term> { @specialize[@name=ModifierKeyword]<Identifier, term> }
+
+Operator<expr> { expr }
+Punc<char> { char }
+
+@skip{
+  whitespace | LineComment | MultiLineComment | Pragma
+}
+
+@tokens {
+  // Skipped tokens
+  whitespace { @whitespace+ }
+  LineComment { "//" ![\n]* }
+  MultiLineComment { "(*" ![*]* "*)" }
+  Pragma { "{" ![}]* "}" }
+
+  @precedence { LineComment, "/" }
+  @precedence { DateTimeLiteral, Identifier }
+
+  // Identifier
+  identifierChar { @asciiLetter | "_" }
+  Identifier { identifierChar (identifierChar | @digit)* }
+
+  // Literals
+  hex { @digit | $[a-fA-F] }
+  NumericLiteral {
+    ( @digit ("_" | @digit)* ("." ("_" | @digit)*)? | "." @digit ("_" | @digit)*)
+      (("e" | "E") ("+" | "-")? ("_" | @digit)+)? 
+    | @digit ("_" | @digit)* |
+      "16#" (hex | "_")+ |
+      "2#" $[01_]+ |
+      "8#" $[0-7_]+
+  }
+  @precedence { NumericLiteral "." }
+
+  StringLiteral { $[\'\"] ![\'\"]* $[\'\"] }
+
+  timeLiteral { "L"? "T#" $[0-9DdMmHhSs_]+ }
+  dateLiteral { "L"? "D#" $[0-9-_]+ }
+  dtLiteral { "L"? "DT#" $[0-9-:._]+ }
+  todLiteral { "L"? "TOD#" $[0-9:._]+ }
+  DateTimeLiteral { timeLiteral | dateLiteral | dtLiteral | todLiteral }
+
+  CompareOp { ("<" | ">" | "=" | "<>") "="? }
+}
+
+// Forces the require for the highlighter
+@external propSource highlighting from "./highlight.js"
+
+// Adds support for () {} [] with openedBy and closedBy tags
+@detectDelim
