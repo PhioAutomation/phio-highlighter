@@ -1,6 +1,7 @@
 import { styleTags, tags } from "@lezer/highlight";
 
 // This is required by the iecst-parser.js file
+// and maps the syntax tree nodes to a tag
 export const highlighting = styleTags({
   ControlKeyword: tags.controlKeyword,
   DeclarationKeyword: tags.definitionKeyword,

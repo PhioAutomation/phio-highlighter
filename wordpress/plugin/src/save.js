@@ -1,10 +1,9 @@
 import { useBlockProps } from '@wordpress/block-editor';
 
-export default function save( { attributes } ) {
+export default function Save( { attributes } ) {
 	const { content } = attributes;
-	const blockProps = useBlockProps.save();
 	return (
-		<div { ...blockProps }>
+		<div { ...useBlockProps.save() }>
 			<pre className="language-phioiecst">
 				<code className="language-phioiecst">{ content }</code>
 			</pre>
