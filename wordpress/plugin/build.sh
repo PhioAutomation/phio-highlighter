@@ -11,8 +11,6 @@ npm run lint:css
 # Build the project
 npm run build
 
-# Add in the static assets
-
 # Copy all the contents to the /wordpress/wp-content/plugins/iecst-highlighter directory
 # from both the build output and static files
 SRC_BUILD="build"
@@ -28,5 +26,8 @@ cp -r "$SRC_BUILD"/* "$DEST_PLUGIN/build"
 cp -r "$SRC_ASSETS"/* "$DEST_PLUGIN/assets"
 cp -r "index.php" "$DEST_PLUGIN"
 cp -r "readme.txt" "$DEST_PLUGIN"
+
+# Add the highlighter
+cp "src/iecst.js" "$DEST_PLUGIN/build/iecst.js"
 
 echo "Build complete!"
