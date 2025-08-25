@@ -49,7 +49,7 @@ class IecstHighlighter {
         echo '<select id="iecst_highlighter_css" name="iecst_highlighter_css">';
         foreach ( $files as $file ) {
             $selected = $file === $current ? 'selected' : '';
-            echo "<option value='" . esc_attr($file) . "' $selected>" . esc_html($file) . "</option>";
+            echo "<option value='" . esc_attr($file) . "' " . esc_attr($selected) . ">" . esc_html($file) . "</option>";
         }
         echo '</select>';
     }
