@@ -59,7 +59,8 @@ class IecstHighlighter {
             'iecst-highlighter-block',
             plugin_dir_url(__FILE__) . 'build/index.js',
             array('wp-blocks', 'wp-element', 'wp-editor', 'wp-block-editor'),
-            filemtime( plugin_dir_path(__FILE__) . 'build/index.js' )
+            filemtime( plugin_dir_path(__FILE__) . 'build/index.js' ),
+            true // Load in footer
         );
 
         wp_enqueue_style(
