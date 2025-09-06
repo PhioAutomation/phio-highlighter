@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import terser from '@rollup/plugin-terser'
 
 const banner = `/*! 
@@ -41,5 +41,9 @@ export default defineConfig({
     },
     // prevent Vite from doing its own minification
     minify: false,
+  },
+  test: {
+    globals: true,
+    environment: "node", // or "jsdom" if testing DOM
   },
 })
