@@ -40,8 +40,8 @@ class IecstHighlighter {
 
     // Render the dropdown for the available CSS files
     function themeFieldHtml() {
-        $css_dir = plugin_dir_path( __FILE__ ) . 'assets/css/';
-        $css_url = plugins_url( 'assets/css/', __FILE__ );
+        $css_dir = plugin_dir_path( __FILE__ ) . 'public/css/';
+        $css_url = plugins_url( 'public/css/', __FILE__ );
         $files = array_filter( scandir( $css_dir ), function( $file ) {
             return preg_match( '/\\.css$/', $file );
         });
@@ -75,20 +75,20 @@ class IecstHighlighter {
         // Add the front-end script
         wp_enqueue_script(
             'iecst-highlighter-view',
-            plugin_dir_url( __FILE__ ) . 'build/iecst.js',
+            plugin_dir_url( __FILE__ ) . 'public/js/iecst.js',
             array(),
-            filemtime( plugin_dir_path( __FILE__ ) . 'build/iecst.js' ),
+            filemtime( plugin_dir_path( __FILE__ ) . 'public/js/iecst.js' ),
             true // Load in footer
         );
 
         // Enqueue the selected CSS file
         $selected = get_option( 'iecst_highlighter_css', 'phio-light.css' );
-        $css_url = plugins_url( 'assets/css/' . $selected, __FILE__ );
+        $css_url = plugins_url( 'public/css/' . $selected, __FILE__ );
         wp_enqueue_style(
             'iecst-highlighter-global-style',
             $css_url,
             array(),
-            filemtime( plugin_dir_path( __FILE__ ) . 'assets/css/' . $selected )
+            filemtime( plugin_dir_path( __FILE__ ) . 'public/css/' . $selected )
         );
     }
 }
