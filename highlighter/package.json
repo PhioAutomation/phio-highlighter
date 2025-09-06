@@ -5,14 +5,18 @@
   "type": "module",
   "scripts": {
     "generate": "npx lezer-generator ./src/iecst.grammar -o ./src/iecst-parser",
-    "build": "npm run generate && vite build"
+    "build": "npm run generate && vite build",
+    "test": "vitest"
   },
   "devDependencies": {
-    "@lezer/generator": "^1.8.0",
     "@lezer/common": "^1.2.3",
+    "@lezer/generator": "^1.8.0",
     "@lezer/highlight": "^1.2.1",
     "@lezer/lr": "^1.4.2",
-    "vite": "^6.3.5"
+    "@vitest/ui": "^3.2.4",
+    "jsdom": "^26.1.0",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@rollup/plugin-terser": "^0.4.4"
